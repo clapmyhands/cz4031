@@ -18,6 +18,19 @@ public class Inproceedings extends Publication {
         this.conf = conf;
     }
 
+    public void createConf() {
+        String s = "s";
+        StringBuilder sb = new StringBuilder();
+        if (this.key.toLowerCase().startWith("conf/")) {
+            for(int i = 5; i < this.key.length(); i++) {
+                if(this.key.equals("/"))
+                    break;
+                sb.append(this.key[i]);
+            }
+        }
+        setConf(sb.toString());
+    }
+
     @Override
     PreparedStatement fillPreparedStatement(PreparedStatement pst) throws SQLException {
         pst = super.fillPreparedStatement(pst);
