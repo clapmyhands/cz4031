@@ -3,6 +3,7 @@ package com.common.entity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
@@ -51,11 +52,12 @@ public class Authored {
     }
 
     public List<PreparedStatement> generateStatement(Connection connection) throws SQLException {
-        List<PreparedStatement> psts = new List<PreparedStatement>();
+        List<PreparedStatement> psts = new ArrayList<PreparedStatement>();
         for(UUID author_id : author_ids){
             PreparedStatement pst = connection.prepareStatement(statement);
             pst = this.fillStatement(pst, this.pub_id, author_id);
             psts.add(pst);
         }
+        return psts;
     }
 }
