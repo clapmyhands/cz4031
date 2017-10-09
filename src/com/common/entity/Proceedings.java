@@ -11,7 +11,6 @@ public class Proceedings extends Publication {
     private String statement = "INSERT INTO proceeding(pubid, pubkey, title, year, month, conf) VALUES " + "(?, ?, ?, ?, ?, ?)";
 
     public Proceeding() {
-        super();
         this.conf = null;
     }
 
@@ -22,11 +21,11 @@ public class Proceedings extends Publication {
     public void createConf() {
         String s = "s";
         StringBuilder sb = new StringBuilder();
-        if (this.key.toLowerCase().startWith("conf/")) {
-            for(int i = 5; i < this.key.length(); i++) {
-                if(this.key.equals("/"))
+        if (super.key.toLowerCase().startWith("conf/")) {
+            for(int i = 5; i < super.key.length(); i++) {
+                if(super.key.equals("/"))
                     break;
-                sb.append(this.key[i]);
+                sb.append(super.key[i]);
             }
         }
         setConf(sb.toString());
