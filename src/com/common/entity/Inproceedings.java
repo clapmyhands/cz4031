@@ -3,11 +3,11 @@ package com.common.entity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class Inproceedings extends Publication {
     private String conf;
-    private String statement = "INSERT INTO proceeding(pubid, pubkey, title, year, month, conf) VALUES " + "(?, ?, ?, ?, ?, ?)";
+    private String booktitle;
+    private String statement = "INSERT INTO proceeding(pubid, pubkey, title, datetime, booktitle) VALUES " + "(?, ?, ?, ?, ?)";
 
     public Inproceedings() {
         this.conf = null;
@@ -34,10 +34,14 @@ public class Inproceedings extends Publication {
         setConf(sb.toString());
     }
 
+    public void setBooktitle(String booktitle) {
+        this.booktitle = booktitle;
+    }
+
     @Override
     PreparedStatement fillPreparedStatement(PreparedStatement pst) throws SQLException {
         pst = super.fillPreparedStatement(pst);
-        pst.setString(6, this.conf);
+        pst.setString(5, this.conf);
         return pst;
     }
 

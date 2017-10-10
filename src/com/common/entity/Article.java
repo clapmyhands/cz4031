@@ -8,11 +8,10 @@ import java.sql.SQLException;
 
 public class Article extends Publication{
     private String journal;
-    private final String statement = "INSERT INTO article(pubid, pubkey, title, year, month, journal) VALUES "+
-            "(?,?,?,?,?,?)";
+    private static String statement = "INSERT INTO article(pubid, pubkey, title, datetime, journal) VALUES "+
+            "(?,?,?,?,?)";
 
     public Article() {
-        super();
         this.journal = null;
     }
 
@@ -23,7 +22,7 @@ public class Article extends Publication{
     @Override
     PreparedStatement fillPreparedStatement(PreparedStatement pst) throws SQLException {
         pst = super.fillPreparedStatement(pst);
-        pst.setString(6, this.journal);
+        pst.setString(5, this.journal);
         return pst;
     }
 
@@ -38,8 +37,7 @@ public class Article extends Publication{
         Article article = new Article();
         article.setKey("abc");
         article.setTitle("stefan's adventure");
-        article.setYear(2017);
-        article.setMonth(10);
+        article.setDate("2017-10-10");
         article.setJournal("dayone");
 
         PostgreSQL postgreSQL = new PostgreSQL();

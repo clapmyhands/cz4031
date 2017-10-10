@@ -5,10 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class WWW extends Publication {
-    private String statement = "INSERT INTO www(pubid, pubkey, title, year, month) VALUES " + "(?, ?, ?, ?, ?)";
+public class MastersThesis extends Publication {
+    private String statement = "INSERT INTO masterthesis(pubid, pubkey, title, datetime) VALUES " + "(?, ?, ?, ?)";
 
-    public WWW() {
+    public MastersThesis() {
     }
     
     @Override

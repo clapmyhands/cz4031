@@ -10,7 +10,7 @@ import java.util.UUID;
 public class Author {
     private UUID id;
     private String name;
-    private static String statement = "INSERT INTO author(pub_id, name) VALUES (?,?)";
+    private static final String statement = "INSERT INTO author(pub_id, name) VALUES (?,?)";
 
     public Author() {
         this.id = null;
@@ -26,11 +26,11 @@ public class Author {
         this.id = id;
     }
 
-    public UUID getAuthorID() {
+    public UUID getID() {
         return this.id;
     }
 
-    public void setAuthorName(String name) {
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -46,9 +46,13 @@ public class Author {
         return pst;
     }
 
+    public String getStatement(){
+        return statement;
+    }
+
     public static void main(String[] args) {
         Author author = new Author();
-        author.setAuthorName("Stefan");
+        author.setName("Stefan");
 
         PostgreSQL postgreSQL = new PostgreSQL();
         Connection conn = postgreSQL.getConnection();

@@ -16,9 +16,9 @@ public class Application {
             SAXParser parser = spf.newSAXParser();
 
             DefaultHandler handler = new DblpHandler(postgreSQL);
-            File file = new File("test.xml");
+            File file = new File("third.xml");
             parser.parse(file, handler);
-
+            postgreSQL.executeBatch();
 
         } catch(Exception e) {
             e.printStackTrace();
