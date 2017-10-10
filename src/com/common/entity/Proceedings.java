@@ -23,7 +23,7 @@ public class Proceedings extends Publication {
         StringBuilder sb = new StringBuilder();
         if (super.getKey().toLowerCase().startsWith("conf/")) {
             for(int i = 5; i < super.getKey().length(); i++) {
-                if(super.getKey().equals("/"))
+                if(super.getKey().charAt(i) == '/')
                     break;
                 sb.append(super.getKey().charAt(i));
             }
