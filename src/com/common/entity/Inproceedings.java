@@ -9,7 +9,7 @@ public class Inproceedings extends Publication {
     private String conf;
     private String statement = "INSERT INTO proceeding(pubid, pubkey, title, year, month, conf) VALUES " + "(?, ?, ?, ?, ?, ?)";
 
-    public Proceeding() {
+    public Inproceedings() {
         this.conf = null;
     }
 
@@ -20,11 +20,11 @@ public class Inproceedings extends Publication {
     public void createConf() {
         String s = "s";
         StringBuilder sb = new StringBuilder();
-        if (super.key.toLowerCase().startWith("conf/")) {
-            for(int i = 5; i < super.key.length(); i++) {
-                if(super.key.equals("/"))
+        if (super.getKey().toLowerCase().startsWith("conf/")) {
+            for(int i = 5; i < super.getKey().length(); i++) {
+                if(super.getKey().equals("/"))
                     break;
-                sb.append(super.key[i]);
+                sb.append(super.getKey().charAt(i));
             }
         }
         setConf(sb.toString());

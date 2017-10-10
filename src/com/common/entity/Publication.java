@@ -33,6 +33,10 @@ public class Publication {
         this.key = key;
     }
 
+    public String getKey() {
+        return this.key;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }

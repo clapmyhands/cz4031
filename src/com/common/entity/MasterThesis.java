@@ -8,7 +8,7 @@ import java.util.UUID;
 public class MasterThesis extends Publication {
     private String statement = "INSERT INTO masterthesis(pubid, pubkey, title, year, month) VALUES " + "(?, ?, ?, ?, ?)";
 
-    public PhdThesis() {
+    public MasterThesis() {
     }
     
     @Override

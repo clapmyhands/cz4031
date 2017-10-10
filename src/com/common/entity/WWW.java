@@ -5,7 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class WWWW extends Publication {
+public class WWW extends Publication {
     private String statement = "INSERT INTO www(pubid, pubkey, title, year, month) VALUES " + "(?, ?, ?, ?, ?)";
 
     public WWW() {
