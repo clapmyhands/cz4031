@@ -38,7 +38,7 @@ public class Publication {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = cleanText(title);
     }
 
     public void setYear(Integer year) {
@@ -63,5 +63,9 @@ public class Publication {
         PreparedStatement pst = connection.prepareStatement(statement);
         pst = this.fillPreparedStatement(pst);
         return pst;
+    }
+
+    private String cleanText(String text) {
+        return text.replaceAll("\\<.*?\\>", "");
     }
 }
