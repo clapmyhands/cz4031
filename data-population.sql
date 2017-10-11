@@ -1,8 +1,8 @@
 -- DATA POPULATION 
 CREATE TABLE Book (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT
+   pub_id INT,
+   title VARCHAR(50),
+   year INT
 );
 
 INSERT INTO Book VALUES 
@@ -15,9 +15,9 @@ INSERT INTO Book VALUES
 (7, 'Neural Networks', 2005);
 
 CREATE TABLE Incollection (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT
+   pub_id INT,
+   title VARCHAR(50),
+   year INT
 );
 
 INSERT INTO Incollection VALUES 
@@ -30,9 +30,9 @@ INSERT INTO Incollection VALUES
 (17, 'Database Principles', 2004);
 
 CREATE TABLE MastersThesis (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT
+   pub_id INT,
+   title VARCHAR(50),
+   year INT
 );
 
 INSERT INTO MastersThesis VALUES 
@@ -45,9 +45,9 @@ INSERT INTO MastersThesis VALUES
 (27, 'Big Data', 2002);
 
 CREATE TABLE PhdThesis (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT
+   pub_id INT,
+   title VARCHAR(50),
+   year INT
 );
 
 INSERT INTO PhdThesis VALUES 
@@ -60,11 +60,11 @@ INSERT INTO PhdThesis VALUES
 (37, 'Neural Networks', 2001);
 
 CREATE TABLE Proceedings (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT,
-   MONTH VARCHAR(15),
-   CONF VARCHAR(10)
+   pub_id INT,
+   title VARCHAR(50),
+   year INT,
+   month VARCHAR(15),
+   conf VARCHAR(10)
 );
 
 INSERT INTO Proceedings VALUES 
@@ -77,11 +77,11 @@ INSERT INTO Proceedings VALUES
 (47, 'Database Principles', 2002, 'November', 'KDD');
 
 CREATE TABLE Inproceedings (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT,
-   MONTH VARCHAR(15),
-   CONF VARCHAR(10)
+   pub_id INT,
+   title VARCHAR(50),
+   year INT,
+   month VARCHAR(15),
+   conf VARCHAR(10)
 );
 
 INSERT INTO Inproceedings VALUES 
@@ -96,10 +96,10 @@ INSERT INTO Inproceedings VALUES
 (59, 'Database Principles', 2013, 'December', 'PVLDB');
 
 CREATE TABLE Article (
-   PUB_ID INT,
-   TITLE VARCHAR(50),
-   YEAR INT,
-   JOURNAL VARCHAR(10)
+   pub_id INT,
+   title VARCHAR(50),
+   year INT,
+   journal VARCHAR(10)
 );
 
 INSERT INTO Article VALUES 
@@ -140,27 +140,27 @@ FROM
 
    UNION
    (
-    SELECT PUB_ID, TITLE, YEAR
+    SELECT pub_id, title, year
     FROM Proceedings
     )
 
    UNION
    (
-    SELECT PUB_ID, TITLE, YEAR
+    SELECT pub_id, title, year
     FROM Inproceedings
     )
 
    UNION
    (
-    SELECT PUB_ID, TITLE, YEAR
+    SELECT pub_id, title, year
     FROM Article
     )
 ) as publ_list;
 
 CREATE TABLE Author 
 (
-   AUTHOR_ID INT,
-   NAME VARCHAR(30)
+   author_id INT,
+   name VARCHAR(30)
 );
 
 INSERT INTO Author VALUES 
@@ -171,8 +171,8 @@ INSERT INTO Author VALUES
 (105, 'Cong Gao');
 
 CREATE TABLE Authored (
-   PUB_ID INT,
-   AUTHOR_ID INT
+   pub_id INT,
+   author_id INT
 );
 
 INSERT INTO Authored VALUES 
@@ -237,27 +237,27 @@ INSERT INTO Authored VALUES
 
 CREATE VIEW PublicationAuthor AS 
 (
-   SELECT pb.PUB_ID, pb.TITLE, pb.YEAR, a.NAME
+   SELECT pb.pub_id, pb.title, pb.year, a.name
    FROM Publications AS pb, Authored AS aed, Author AS a
-   WHERE pb.PUB_ID = aed.PUB_ID AND aed.AUTHOR_ID = a.AUTHOR_ID
-   ORDER BY pb.PUB_ID
+   WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
+   ORDER BY pb.pub_id
 );
 
 CREATE VIEW ConfJournalPapers AS (
    SELECT *
    FROM (
-      SELECT PUB_ID, TITLE, YEAR, CONF AS CONFJOURNAL
+      SELECT pub_id, title, year, conf AS confjournal
       FROM Inproceedings
    ) AS resultSet
 
    UNION (
-      SELECT PUB_ID, TITLE, YEAR, JOURNAL AS CONFJOURNAL
+      SELECT pub_id, title, year, journal AS confjournal
       FROM Article
    )
 );
 
 CREATE VIEW PapersWithAuthors AS (
-   SELECT cjp.*, pa.NAME
+   SELECT cjp.*, pa.name
    FROM ConfJournalPapers cjp, PublicationAuthor pa
-   WHERE cjp.PUB_ID = pa.PUB_ID
+   WHERE cjp.pub_id = pa.pub_id
 );

@@ -1,57 +1,57 @@
 -- QUERY 1
 
-SELECT TYPE, COUNT(*)
+SELECT type, COUNT(*)
 FROM (
       (
-       SELECT 'Book' as TYPE, YEAR
+       SELECT 'Book' as type, year
        FROM Book
        )
       UNION ALL
       (
-       SELECT 'Incollection' as TYPE, YEAR
+       SELECT 'Incollection' as type, year
        FROM Incollection
        )
       UNION ALL
       (
-       SELECT 'MastersThesis' as TYPE, YEAR
+       SELECT 'MastersThesis' as type, year
        FROM MastersThesis
        )
       UNION ALL
       (
-       SELECT 'PhdThesis' as TYPE, YEAR
+       SELECT 'PhdThesis' as type, year
        FROM PhdThesis
        )
       UNION ALL
       (
-       SELECT 'Proceedings' as TYPE, YEAR
+       SELECT 'Proceedings' as type, year
        FROM Proceedings
        )
       UNION ALL
       (
-       SELECT 'Inproceedings' as TYPE, YEAR
+       SELECT 'Inproceedings' as type, year
        FROM Inproceedings
        )
       UNION ALL
       (
-       SELECT 'Article' as TYPE, YEAR
+       SELECT 'Article' as type, year
        FROM Article
        )
       ) AS publ_list
-WHERE YEAR BETWEEN 2000 AND 2007
-GROUP BY TYPE
-ORDER BY TYPE;
+WHERE year BETWEEN 2000 AND 2007
+GROUP BY type
+ORDER BY type;
 
 -- QUERY 2
 -- numberOfConferences should be > 200 instead
 SELECT *
 FROM (
-      SELECT CONF, YEAR, COUNT(*) AS numberOfConferences
+      SELECT conf, year, COUNT(*) AS numberOfConferences
       FROM (
             SELECT *
             FROM Inproceedings
-            WHERE MONTH = 'July'
+            WHERE month = 'July'
             ) AS julyConferences
-      GROUP BY CONF, YEAR
+      GROUP BY conf, year
       ) AS resultSet
 WHERE numberOfConferences > 1;
 
@@ -60,32 +60,32 @@ DROP VIEW IF EXISTS PublicationAuthor CASCADE;
 
 CREATE VIEW PublicationAuthor AS 
 (
-   SELECT pb.PUB_ID, pb.TITLE, pb.YEAR, a.NAME
-   FROM PubRecords AS pb, Authored AS aed, Author AS a
-   WHERE pb.PUB_ID = aed.PUB_ID AND aed.AUTHOR_ID = a.AUTHOR_ID
-   ORDER BY pb.PUB_ID
+   SELECT pb.pub_id, pb.title, pb.year, a.name
+   FROM publication AS pb, Authored AS aed, Author AS a
+   WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
+   ORDER BY pb.pub_id
 );
 
 -- (3a)
-SELECT NAME, PUB_ID, TITLE
+SELECT name, pub_id, title
 FROM PublicationAuthor
-WHERE NAME = 'Kurni' AND YEAR = 2015;
+WHERE name = 'Kurni' AND year = 2015;
 
 -- (3b)
-SELECT NAME, pa.PUB_ID, pa.TITLE
+SELECT name, pa.pub_id, pa.title
 FROM PublicationAuthor pa, Inproceedings i
-WHERE pa.PUB_ID = i.PUB_ID AND NAME = 'Stefan' AND pa.YEAR = 2012 AND i.CONF = 'KDD';
+WHERE pa.pub_id = i.pub_id AND name = 'Stefan' AND pa.year = 2012 AND i.conf = 'KDD';
 
 -- (3c)
 SELECT *
 FROM (
-      SELECT NAME, CONF, pa.YEAR, COUNT(*) AS numberOfPapers
+      SELECT name, conf, pa.year, COUNT(*) AS paper_count
       FROM Inproceedings AS i
       JOIN PublicationAuthor AS pa
-      ON i.PUB_ID = pa.PUB_ID
-      GROUP BY NAME, CONF, pa.YEAR
+      ON i.pub_id = pa.pub_id
+      GROUP BY name, conf, pa.year
    ) AS resultSet
-WHERE NAME = 'Stefan' AND YEAR = 1980 AND CONF = 'KDD' AND numberOfPapers > 2;
+WHERE name = 'Stefan' AND year = 1980 AND conf = 'KDD' AND paper_count > 2;
 
 
 -- QUERY 4
@@ -98,103 +98,103 @@ DROP VIEW IF EXISTS PapersWithAuthors CASCADE;
 CREATE VIEW ConfJournalPapers AS (
    SELECT *
    FROM (
-      SELECT PUB_ID, TITLE, CONF AS CONFJOURNAL
+      SELECT pub_id, title, conf AS confjournal
       FROM Inproceedings
    ) AS resultSet
 
    UNION (
-      SELECT PUB_ID, TITLE, JOURNAL AS CONFJOURNAL
+      SELECT pub_id, title, journal AS confjournal
       FROM Article
    )
 );
 
 CREATE VIEW PapersWithAuthors AS (
-   SELECT cjp.*, pa.NAME
+   SELECT cjp.*, pa.name
    FROM ConfJournalPapers cjp, PublicationAuthor pa
-   WHERE cjp.PUB_ID = pa.PUB_ID
+   WHERE cjp.pub_id = pa.pub_id
 );
 
 -- number of papers: 10 reduced to 2, 15 reduced to 3
 -- (4a)
-SELECT DISTINCT pwa1.NAME 
+SELECT DISTINCT pwa1.name 
 FROM PapersWithAuthors pwa1
-WHERE pwa1.NAME IN (
-   SELECT DISTINCT NAME
+WHERE pwa1.name IN (
+   SELECT DISTINCT name
    FROM PapersWithAuthors
-   WHERE CONFJOURNAL = 'PVLDB'
-   GROUP BY NAME, CONFJOURNAL
-   HAVING COUNT(DISTINCT PUB_ID) > 2
+   WHERE confjournal = 'PVLDB'
+   GROUP BY name, confjournal
+   HAVING COUNT(DISTINCT pub_id) > 2
 ) INTERSECT (
-   SELECT DISTINCT NAME
+   SELECT DISTINCT name
    FROM PapersWithAuthors
-   WHERE CONFJOURNAL = 'SIGMOD'
-   GROUP BY NAME, CONFJOURNAL
-   HAVING COUNT(DISTINCT PUB_ID) > 2
+   WHERE confjournal = 'SIGMOD'
+   GROUP BY name, confjournal
+   HAVING COUNT(DISTINCT pub_id) > 2
 );
 
 -- (4b)
-SELECT DISTINCT pwa1.NAME 
+SELECT DISTINCT pwa1.name 
 FROM PapersWithAuthors pwa1
-WHERE pwa1.NAME IN (
-   SELECT DISTINCT NAME
+WHERE pwa1.name IN (
+   SELECT DISTINCT name
    FROM PapersWithAuthors
-   WHERE CONFJOURNAL = 'PVLDB'
-   GROUP BY NAME, CONFJOURNAL
-   HAVING COUNT(DISTINCT PUB_ID) > 3
-) AND pwa1.NAME NOT IN (
-   SELECT DISTINCT NAME
+   WHERE confjournal = 'PVLDB'
+   GROUP BY name, confjournal
+   HAVING COUNT(DISTINCT pub_id) > 3
+) AND pwa1.name NOT IN (
+   SELECT DISTINCT name
    FROM PapersWithAuthors
-   WHERE CONFJOURNAL = 'KDD'
-   GROUP BY NAME, CONFJOURNAL
-   HAVING COUNT(DISTINCT PUB_ID) = 0
+   WHERE confjournal = 'KDD'
+   GROUP BY name, confjournal
+   HAVING COUNT(DISTINCT pub_id) = 0
 );
 
 -- QUERY 5
 SELECT * INTO YearlyCount
 FROM (
-      SELECT YEAR, COUNT(*) as numberOfPapers
+      SELECT year, COUNT(*) as paper_count
       FROM Inproceedings
-      GROUP BY YEAR
+      GROUP BY year
       ) AS resultSet;
 
 
 SELECT *
 FROM (
       (
-       SELECT '1970-1979' AS YEAR_RANGE, numberOfPapers
+       SELECT '1970-1979' AS year_range, paper_count
        FROM YearlyCount
-       WHERE YEAR BETWEEN 1970 AND 1979
+       WHERE year BETWEEN 1970 AND 1979
        )
 
       UNION
       (
-       SELECT '1980-1989' AS YEAR_RANGE, numberOfPapers
+       SELECT '1980-1989' AS year_range, paper_count
        FROM YearlyCount
-       WHERE YEAR BETWEEN 1980 AND 1989
+       WHERE year BETWEEN 1980 AND 1989
        )
 
       UNION
       (
-       SELECT '1990-1999' AS YEAR_RANGE, numberOfPapers
+       SELECT '1990-1999' AS year_range, paper_count
        FROM YearlyCount
-       WHERE YEAR BETWEEN 1990 AND 1999
+       WHERE year BETWEEN 1990 AND 1999
        )
 
       UNION
       (
-       SELECT '2000-2009' AS YEAR_RANGE, numberOfPapers
+       SELECT '2000-2009' AS year_range, paper_count
        FROM YearlyCount
-       WHERE YEAR BETWEEN 2000 AND 2009
+       WHERE year BETWEEN 2000 AND 2009
        )
 
       UNION
       (
-       SELECT '2010-2019' AS YEAR_RANGE, numberOfPapers
+       SELECT '2010-2019' AS year_range, paper_count
        FROM YearlyCount
-       WHERE YEAR BETWEEN 2010 AND 2019
+       WHERE year BETWEEN 2010 AND 2019
        )
       ) as resultSet
-ORDER BY YEAR_RANGE;
+ORDER BY year_range;
 
 DROP TABLE YearlyCount;
 
@@ -207,28 +207,28 @@ CREATE VIEW dataConferences AS
 (
    SELECT *
    FROM PapersWithAuthors
-   WHERE TITLE SIMILAR TO '%[dD]ata%'
+   WHERE title SIMILAR TO '%[dD]ata%'
 );
 
 CREATE VIEW collaborators AS
 (
-   SELECT dc1.NAME, dc2.NAME as collaborator
+   SELECT dc1.name, dc2.name as collaborator
    FROM dataConferences dc1
-   JOIN dataConferences dc2 ON dc1.PUB_ID = dc2.PUB_ID AND NOT dc1.NAME = dc2.NAME
+   JOIN dataConferences dc2 ON dc1.pub_id = dc2.pub_id AND NOT dc1.name = dc2.name
 );
 
 CREATE VIEW collaboratorsCount AS
 (
-   SELECT NAME, COUNT(DISTINCT collaborator) as collabCount
+   SELECT name, COUNT(DISTINCT collaborator) as collabCount
    FROM collaborators
-   GROUP BY NAME
+   GROUP BY name
    ORDER BY collabCount DESC
 );
 
-SELECT NAME
+SELECT name
 FROM collaboratorsCount
 WHERE collabCount = (SELECT MAX(collabCount) FROM collaboratorsCount)
-ORDER BY NAME;
+ORDER BY name;
 
 -- QUERY 7
 DROP VIEW IF EXISTS dataConferences5Years CASCADE;
@@ -236,12 +236,12 @@ DROP VIEW IF EXISTS dataConferences5Years CASCADE;
 CREATE VIEW dataConferences5Years AS (
     SELECT *
     FROM PapersWithAuthors
-    WHERE TITLE SIMILAR TO '%[dD]ata%' AND YEAR BETWEEN 2013 AND 2017
+    WHERE title SIMILAR TO '%[dD]ata%' AND year BETWEEN 2013 AND 2017
 );
 
-SELECT NAME, COUNT(DISTINCT PUB_ID) AS pubCount
+SELECT name, COUNT(DISTINCT pub_id) AS pubCount
 FROM dataConferences5Years
-GROUP BY NAME
+GROUP BY name
 ORDER BY pubCount DESC
 LIMIT 10;
 
@@ -249,17 +249,17 @@ LIMIT 10;
 DROP VIEW IF EXISTS validConferences CASCADE;
 
 CREATE VIEW validConferences AS (
-    SELECT CONF, YEAR, COUNT(*) AS pubCount
+    SELECT conf, year, COUNT(*) AS pubCount
     FROM Inproceedings
-    WHERE CONF in (
-        SELECT DISTINCT CONF 
+    WHERE conf in (
+        SELECT DISTINCT conf 
         FROM Inproceedings 
-        WHERE MONTH = 'June'
+        WHERE month = 'June'
     )
-    GROUP BY CONF, YEAR
+    GROUP BY conf, year
 );
 
-SELECT DISTINCT CONF
+SELECT DISTINCT conf
 FROM validConferences
 WHERE pubCount > 100
 
@@ -268,20 +268,20 @@ WHERE pubCount > 100
 DROP VIEW IF EXISTS diligentAuthors CASCADE;
 
 CREATE VIEW diligentAuthors AS (
-   SELECT NAME, YEAR
+   SELECT name, year
    FROM PublicationAuthor
-   WHERE YEAR BETWEEN 1988 AND 2017 AND NAME SIMILAR TO '% H%'
-   GROUP BY NAME, YEAR
+   WHERE year BETWEEN 1988 AND 2017 AND name SIMILAR TO '% H%'
+   GROUP BY name, year
    HAVING COUNT(*) = 30
 );
 
-SELECT DISTINCT NAME
+SELECT DISTINCT name
 FROM diligentAuthors;
 
 -- (9b)
-SELECT NAME, COUNT(*)
+SELECT name, COUNT(*)
 FROM PublicationAuthor
-GROUP BY NAME
+GROUP BY name
 ORDER BY M_DATE DESC
 
 -- QUERY 10
@@ -289,17 +289,17 @@ ORDER BY M_DATE DESC
 DROP VIEW IF EXISTS yearlyAuthorPubCount CASCADE;
 
 CREATE VIEW yearlyAuthorPubCount AS (
-    SELECT YEAR, NAME, COUNT(*) AS pubCount
+    SELECT year, name, COUNT(*) AS pubCount
     FROM PublicationAuthor
-    GROUP BY YEAR, NAME
-    ORDER BY YEAR, COUNT(*) DESC
+    GROUP BY year, name
+    ORDER BY year, COUNT(*) DESC
 );
 
 WITH result AS (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY YEAR ORDER BY pubCount DESC) AS row
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY year ORDER BY pubCount DESC) AS row
     FROM yearlyAuthorPubCount
 )
-SELECT YEAR, NAME, pubCount
+SELECT year, name, pubCount
 FROM result
 WHERE row = 1;
 

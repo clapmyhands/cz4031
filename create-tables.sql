@@ -1,77 +1,76 @@
 -- CREATE TABLE/VIEW queries
 
-CREATE TABLE PubRecords (
-   PUB_ID INT PRIMARY KEY,
-   TITLE VARCHAR(50),
-   CDATE DATE,
-   MDATE DATE,
-   YEAR INT,
-   MONTH VARCHAR(10),
-   SERIES VARCHAR(5),
-   VOLUME INT, 
-   CROSSREF VARCHAR(30),
-   PUBLISHER VARCHAR(30)
+CREATE TABLE Publication (
+   pub_id INT PRIMARY KEY,
+   key VARCHAR(30),
+   title VARCHAR(150),
+   cdate DATE,
+   mdate DATE,
+   year INT,
+   month VARCHAR(10)
 );
 
 CREATE TABLE Book (
-) INHERITS (PubRecords);
+) INHERITS (publication);
 
 CREATE TABLE Incollection (
-) INHERITS (PubRecords);
+) INHERITS (publication);
 
 CREATE TABLE MastersThesis (
-) INHERITS (PubRecords);
+) INHERITS (publication);
 
 CREATE TABLE PhdThesis (
-) INHERITS (PubRecords);
+) INHERITS (publication);
 
 CREATE TABLE Proceedings (
-   CONF VARCHAR(30)
-) INHERITS (PubRecords);
+   conf VARCHAR(30),
+   booktitle VARCHAR(50)
+) INHERITS (publication);
 
 CREATE TABLE Inproceedings (
-   CONF VARCHAR(30)
-) INHERITS (PubRecords);
+   conf VARCHAR(30),
+   booktitle VARCHAR(50)
+) INHERITS (publication);
 
 CREATE TABLE Article (
-   JOURNAL VARCHAR(30)
-) INHERITS (PubRecords);
+   journal VARCHAR(30)
+) INHERITS (publication);
 
 CREATE TABLE Author 
 (
-   AUTHOR_ID INT PRIMARY KEY,
-   NAME VARCHAR(30)
+   author_id INT PRIMARY KEY,
+   name VARCHAR(30)
 );
 
 CREATE TABLE Authored (
-   PUB_ID INT,
-   AUTHOR_ID INT,
-   PRIMARY KEY(PUB_ID, AUTHOR_ID)
+   pub_id INT,
+   author_id INT,
+   PRIMARY KEY(pub_id, author_id)
 );
 
 CREATE VIEW PublicationAuthor AS 
 (
-   SELECT pb.PUB_ID, pb.TITLE, pb.YEAR, a.NAME
-   FROM PubRecords AS pb, Authored AS aed, Author AS a
-   WHERE pb.PUB_ID = aed.PUB_ID AND aed.AUTHOR_ID = a.AUTHOR_ID
-   ORDER BY pb.PUB_ID
+   SELECT pb.pub_id, pb.title, pb.year, a.name
+   FROM publication AS pb, Authored AS aed, Author AS a
+   WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
+   ORDER BY pb.pub_id
 );
 
 CREATE VIEW ConfJournalPapers AS (
    SELECT *
    FROM (
-      SELECT PUB_ID, TITLE, YEAR, CONF AS CONFJOURNAL
+      SELECT pub_id, title, year, conf AS confjournal
       FROM Inproceedings
    ) AS resultSet
 
    UNION (
-      SELECT PUB_ID, TITLE, YEAR, JOURNAL AS CONFJOURNAL
+      SELECT pub_id, title, year, journal AS confjournal
       FROM Article
    )
 );
 
 CREATE VIEW PapersWithAuthors AS (
-   SELECT cjp.*, pa.NAME
+   SELECT cjp.*, pa.name
    FROM ConfJournalPapers cjp, PublicationAuthor pa
-   WHERE cjp.PUB_ID = pa.PUB_ID
+   WHERE cjp.pub_id = pa.pub_id
 );
