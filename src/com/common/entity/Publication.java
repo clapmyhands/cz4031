@@ -9,24 +9,30 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Publication {
-    private UUID id;
+    private Integer id;
     private String key;
     private String title;
     private Calendar cal;
     private String statement;
+    private static Integer counter = 0;
 
     public Publication() {
-        this.id = UUID.randomUUID();
+        this.id = generateID();
         this.key = null;
         this.title = null;
         this.cal = Calendar.getInstance(TimeZone.getTimeZone("GMT-0:00"));
     }
 
-    public void setId(UUID id) {
+    public static Integer generateID(){
+        counter++;
+        return counter;
+    }
+
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public UUID getId() {
+    public Integer getId() {
         return this.id;
     }
 

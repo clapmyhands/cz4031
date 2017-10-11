@@ -5,28 +5,29 @@ import com.common.PostgreSQL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.UUID;
 
 public class Author {
-    private UUID id;
+    private Integer id;
     private String name;
+    private static Integer counter=0;
     private static final String statement = "INSERT INTO author(pub_id, name) VALUES (?,?)";
 
     public Author() {
-        this.id = null;
+        this.id = generateID();
         this.name = null;
     }
 
-    public Author(UUID id) {
-        this.id = id;
-        this.name = null;
+    public static Integer generateID(){
+        counter++;
+        return counter;
     }
 
-    public void setAuthorID(UUID id) {
+
+    public void setAuthorID(Integer id) {
         this.id = id;
     }
 
-    public UUID getID() {
+    public Integer getID() {
         return this.id;
     }
 

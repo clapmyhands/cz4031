@@ -5,7 +5,6 @@ import com.common.entity.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
-import java.util.UUID;
 
 
 public class PostgreSQL {
@@ -48,7 +47,7 @@ public class PostgreSQL {
 
     // generator
     public void generateAuthorRecord(){
-        this.authorRecord = new Author(UUID.randomUUID());
+        this.authorRecord = new Author();
     }
 
     public void generateAuthoredRecord(){
@@ -126,15 +125,15 @@ public class PostgreSQL {
         }
     }
 
-    public void setFieldInproceedingsBooktitle(String crossref){
+    public void setFieldInproceedingsBooktitle(String booktitle){
         if(this.publicationRecord instanceof  Inproceedings){
-            ((Inproceedings) this.publicationRecord).setBooktitle(crossref);
+            ((Inproceedings) this.publicationRecord).setBooktitle(booktitle);
         }
     }
 
-    public void setFieldProceedingsBooktitle(String crossref){
+    public void setFieldProceedingsBooktitle(String booktitle){
         if(this.publicationRecord instanceof  Proceedings){
-            ((Proceedings) this.publicationRecord).setBooktitle(crossref);
+            ((Proceedings) this.publicationRecord).setBooktitle(booktitle);
         }
     }
 

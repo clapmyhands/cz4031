@@ -3,15 +3,11 @@ package com.common.entity;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
 
 public class Authored {
     private PreparedStatement authoredStatement;
-    private UUID author_id;
-    private UUID pub_id;
+    private Integer author_id;
+    private Integer pub_id;
     private static String statement = "INSERT INTO authored(pub_id, author_id) VALUES (?,?)";
 
     public Authored() {
@@ -19,25 +15,25 @@ public class Authored {
         this.author_id=null;
     }
 
-    public Authored(UUID pub_id, UUID author_id) {
+    public Authored(Integer pub_id, Integer author_id) {
         this.pub_id=pub_id;
         this.author_id= author_id;
     }
 
-    public void setAuthorId(UUID author_id) {
+    public void setAuthorId(Integer author_id) {
         this.author_id = author_id;
     }
 
-    public UUID getAuthorId(){
+    public Integer getAuthorId(){
         return this.author_id;
     }
 
 
-    public void setPubId(UUID pub_id) {
+    public void setPubId(Integer pub_id) {
         this.pub_id = pub_id;
     }
 
-    public UUID getPubId() {
+    public Integer getPubId() {
         return this.pub_id;
     }
 
