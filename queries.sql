@@ -61,7 +61,7 @@ DROP VIEW IF EXISTS PublicationAuthor CASCADE;
 CREATE VIEW PublicationAuthor AS 
 (
    SELECT pb.PUB_ID, pb.TITLE, pb.YEAR, a.NAME
-   FROM Publications AS pb, Authored AS aed, Author AS a
+   FROM PubRecords AS pb, Authored AS aed, Author AS a
    WHERE pb.PUB_ID = aed.PUB_ID AND aed.AUTHOR_ID = a.AUTHOR_ID
    ORDER BY pb.PUB_ID
 );
