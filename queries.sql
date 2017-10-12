@@ -42,25 +42,24 @@ GROUP BY type
 ORDER BY type;
 
 -- QUERY 2
--- numberOfConferences should be > 200 instead
 SELECT *
 FROM (
-      SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS numberOfConferences
+      SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS conferences_count
       FROM (
             SELECT *
-            FROM inproceedings
+            FROM proceedings_inproceedings
             WHERE extract(month from pub_date) = 'July'
             ) AS julyConferences
       GROUP BY booktitle, year
       ) AS result_set
-WHERE numberOfConferences > 1;
+WHERE conferences_count > 200;
 
 -- QUERY 3
 DROP VIEW IF EXISTS publication_author CASCADE;
 
 CREATE VIEW publication_author AS 
 (
-   SELECT pb.pub_id, pb.title, pb.pub_date, a.name
+   SELECT pb.pub_id, pb.title, pb.pub_date, a.author_name
    FROM publication AS pb, authored AS aed, author AS a
    WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
    ORDER BY pb.pub_id
@@ -69,23 +68,23 @@ CREATE VIEW publication_author AS
 -- (3a)
 SELECT name, pub_id, title
 FROM publication_author
-WHERE name = 'Kurni' AND extract(year from pub_date) = 2015;
+WHERE author_name = 'Kurni' AND extract(year from pub_date) = 2015;
 
 -- (3b)
 SELECT name, pa.pub_id, pa.title
-FROM publication_author pa, inproceedings i
-WHERE pa.pub_id = i.pub_id AND name = 'Stefan' AND pa.pub_date = 2012 AND i.booktitle = 'KDD';
+FROM publication_author pa, proceedings_inproceedings i
+WHERE pa.pub_id = i.pub_id AND author_name = 'Stefan' AND pa.pub_date = 2012 AND i.booktitle = 'KDD';
 
 -- (3c)
 SELECT *
 FROM (
       SELECT name, booktitle, pa.pub_date, COUNT(*) AS paper_count
-      FROM inproceedings AS i
+      FROM proceedings_inproceedings AS i
       JOIN publication_author AS pa
       ON i.pub_id = pa.pub_id
       GROUP BY name, booktitle, pa.pub_date
    ) AS result_set
-WHERE name = 'Stefan' AND extract(year from pub_date) = 1980 AND booktitle = 'KDD' AND paper_count > 2;
+WHERE author_name = 'Stefan' AND extract(year from pub_date) = 1980 AND booktitle = 'KDD' AND paper_count > 2;
 
 
 -- QUERY 4
@@ -109,16 +108,16 @@ CREATE VIEW confjournalpapers AS (
 );
 
 CREATE VIEW papers_with_authors AS (
-   SELECT cjp.*, pa.name
+   SELECT cjp.*, pa.author_name
    FROM confjournalpapers cjp, publication_author pa
    WHERE cjp.pub_id = pa.pub_id
 );
 
 -- number of papers: 10 reduced to 2, 15 reduced to 3
 -- (4a)
-SELECT DISTINCT pwa1.name 
+SELECT DISTINCT pwa1.author_name 
 FROM papers_with_authors pwa1
-WHERE pwa1.name IN (
+WHERE pwa1.author_name IN (
    SELECT DISTINCT name
    FROM papers_with_authors
    WHERE confjournal = 'PVLDB'
@@ -133,15 +132,15 @@ WHERE pwa1.name IN (
 );
 
 -- (4b)
-SELECT DISTINCT pwa1.name 
+SELECT DISTINCT pwa1.author_name 
 FROM papers_with_authors pwa1
-WHERE pwa1.name IN (
+WHERE pwa1.author_name IN (
    SELECT DISTINCT name
    FROM papers_with_authors
    WHERE confjournal = 'PVLDB'
    GROUP BY name, confjournal
    HAVING COUNT(DISTINCT pub_id) > 3
-) AND pwa1.name NOT IN (
+) AND pwa1.author_name NOT IN (
    SELECT DISTINCT name
    FROM papers_with_authors
    WHERE confjournal = 'KDD'
@@ -212,9 +211,9 @@ CREATE VIEW data_conferences AS
 
 CREATE VIEW collaborators AS
 (
-   SELECT dc1.name, dc2.name as collaborator
+   SELECT dc1.author_name, dc2.author_name as collaborator
    FROM data_conferences dc1
-   JOIN data_conferences dc2 ON dc1.pub_id = dc2.pub_id AND NOT dc1.name = dc2.name
+   JOIN data_conferences dc2 ON dc1.pub_id = dc2.pub_id AND NOT dc1.author_name = dc2.author_name
 );
 
 CREATE VIEW collaborators_count AS
@@ -253,7 +252,7 @@ CREATE VIEW valid_conferences AS (
     FROM inproceedings
     WHERE booktitle in (
         SELECT DISTINCT booktitle 
-        FROM inproceedings 
+        FROM proceedings_inproceedings
         WHERE extract(month from pub_date) = 'June'
     )
     GROUP BY booktitle, year
@@ -270,7 +269,7 @@ DROP VIEW IF EXISTS diligent_authors CASCADE;
 CREATE VIEW diligent_authors AS (
    SELECT name, extract(year from pub_date) as year
    FROM publication_author
-   WHERE extract(year from pub_date) BETWEEN 1988 AND 2017 AND name SIMILAR TO '% H[a-z\.]*'
+   WHERE extract(year from pub_date) BETWEEN 1988 AND 2017 AND author_name SIMILAR TO '% H[a-z\.]*'
    GROUP BY name, year
    HAVING COUNT(*) = 30
 );
@@ -289,9 +288,9 @@ ORDER BY pub_date DESC
 DROP VIEW IF EXISTS yearly_author_pub_count CASCADE;
 
 CREATE VIEW yearly_author_pub_count AS (
-    SELECT extract(year from pub_date) as year, name, COUNT(*) AS pub_count
+    SELECT extract(year from pub_date) as year, author_name, COUNT(*) AS pub_count
     FROM publication_author
-    GROUP BY year, name
+    GROUP BY year, author_name
     ORDER BY year, COUNT(*) DESC
 );
 
@@ -299,17 +298,17 @@ WITH result AS (
     SELECT *, ROW_NUMBER() OVER (PARTITION BY year ORDER BY pub_count DESC) AS row
     FROM yearly_author_pub_count
 )
-SELECT year, name, pub_count
+SELECT year, author_name, pub_count
 FROM result
 WHERE row = 1;
 
 -- Query to delete duplicates in author and then update the authored table
 -- Copy author table but without duplicates. Use the author_id with the smallest number.
 WITH result AS (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY name ORDER BY author_id) AS row
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY author_name ORDER BY author_id) AS row
     FROM author
 )
-SELECT author_id, name 
+SELECT author_id, author_name 
 INTO distinct_name
 FROM result
 WHERE row = 1;
@@ -322,7 +321,7 @@ BEGIN
   FOR rec IN (SELECT * FROM distinct_name) LOOP
   UPDATE authored
   SET author_id = rec.author_id
-  WHERE author_id IN (SELECT a.author_id FROM author a WHERE a.name = rec.name);
+  WHERE author_id IN (SELECT a.author_id FROM author a WHERE a.author_name = rec.author_name);
   END LOOP;
 END $$;
 

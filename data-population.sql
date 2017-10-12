@@ -261,3 +261,11 @@ CREATE VIEW papers_with_authors AS (
    FROM confjournalpapers cjp, publication_author pa
    WHERE cjp.pub_id = pa.pub_id
 );
+
+CREATE VIEW proceedings_inproceedings AS (
+    SELECT *
+    FROM proceedings 
+    UNION 
+    SELECT *
+    FROM inproceedings
+);
