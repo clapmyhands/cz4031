@@ -16,7 +16,7 @@ public class Application {
             SAXParser parser = spf.newSAXParser();
 
             DefaultHandler handler = new DblpHandler(postgreSQL);
-            File file = new File("dblp.xml");
+            File file = new File("xaa.xml");
             parser.parse(file, handler);
             postgreSQL.executeBatch();
             postgreSQL.closeConnection();

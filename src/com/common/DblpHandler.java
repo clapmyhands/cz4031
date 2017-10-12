@@ -15,6 +15,7 @@ public class DblpHandler extends DefaultHandler{
     private boolean article=false;
     private boolean proceedings=false;
     private boolean inproceedings=false;
+    private boolean www=false;
 
     // attribute tag
     private boolean author = false;
@@ -33,6 +34,8 @@ public class DblpHandler extends DefaultHandler{
         String lowerName = qName.toLowerCase();
         String key;
         String date;
+        if(www)
+            return;
         try {
             key = atts.getValue("key");
             date = atts.getValue("mdate");
@@ -52,10 +55,12 @@ public class DblpHandler extends DefaultHandler{
                     month = true;
                     break;
                 case "booktitle":
-                    booktitle = true;
+                    if(proceedings || inproceedings)
+                        booktitle = true;
                     break;
                 case "journal":
-                    journal = true;
+                    if(article)
+                        journal = true;
                     break;
                 case "article":
                     article=true;
@@ -81,6 +86,9 @@ public class DblpHandler extends DefaultHandler{
                 case "mastersthesis":
                     postgreSQL.generateMastersThesisRecord();
                     break;
+                case "www":
+                    www=true;
+                    break;
             }
             if(Publication.checkType(lowerName)){
                 postgreSQL.setFieldPublicationPubkey(key);
@@ -96,29 +104,35 @@ public class DblpHandler extends DefaultHandler{
     @Override
     public void endElement(String uri, String localName, String qName){
         String lowerName = qName.toLowerCase();
+        if(lowerName.equalsIgnoreCase("www")){
+            www=false;
+            return;
+        }
         try {
-            switch(lowerName){
-                case "article":
-                    article=false;
-                    break;
-                case "proceedings":
-                    proceedings=false;
-                    break;
-                case "inproceedings":
-                    inproceedings=false;
-                    break;
-            }
             if(Publication.checkType(lowerName)){
+                article=false;
+                proceedings=false;
+                inproceedings=false;
+                www=false;
+                author = false;
+                title = false;
+                journal = false;
+                year = false;
+                month = false;
+                booktitle = false;
                 postgreSQL.generatePublicationStatement();
             }
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
     @Override
     public void characters(char[] ch, int start, int length){
         String value = new String(ch, start, length);
+        if(www)
+            return;
         try {
             if(author){
                 postgreSQL.setFieldAuthorName(value);
@@ -149,7 +163,6 @@ public class DblpHandler extends DefaultHandler{
                 journal=false;
             }
         } catch (Exception e) {
-
         }
     }
 

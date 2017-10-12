@@ -14,7 +14,7 @@ public class Publication {
     private String title;
     private Calendar cal;
     private String statement;
-    private static Integer counter = 0;
+    private static Integer counter = 2379683;
 
     public Publication() {
         this.id = generateID();
@@ -75,7 +75,7 @@ public class Publication {
         pst.setObject(1, this.id);
         pst.setString(2, this.key);
         pst.setString(3, this.title);
-        pst.setDate(4, date); // use string to bypass local timezone
+        pst.setDate(4, date);
         return pst;
     }
 

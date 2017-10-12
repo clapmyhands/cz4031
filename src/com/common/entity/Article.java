@@ -35,10 +35,10 @@ public class Article extends Publication{
 
     public static void main(String[] args) {
         Article article = new Article();
-        article.setKey("abc");
-        article.setTitle("stefan's adventure");
-        article.setDate("2017-01-31");
-        article.setMonth(1);
+        article.setKey("books/ph/Bach86");
+        article.setTitle("");
+        article.setDate("2017-05-31");
+        article.setYear(1985);
         article.setJournal("dayone");
 
         PostgreSQL postgreSQL = new PostgreSQL();
