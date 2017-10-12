@@ -303,3 +303,29 @@ SELECT year, name, pub_count
 FROM result
 WHERE row = 1;
 
+-- Query to delete duplicates in author and then update the authored table
+-- Copy author table but without duplicates. Use the author_id with the smallest number.
+WITH result AS (
+    SELECT *, ROW_NUMBER() OVER (PARTITION BY name ORDER BY author_id) AS row
+    FROM author
+)
+SELECT author_id, name 
+INTO distinct_name
+FROM result
+WHERE row = 1;
+
+-- Update the authored table
+DO $$
+DECLARE
+    rec RECORD;
+BEGIN
+  FOR rec IN (SELECT * FROM distinct_name) LOOP
+  UPDATE authored
+  SET author_id = rec.author_id
+  WHERE author_id IN (SELECT a.author_id FROM author a WHERE a.name = rec.name);
+  END LOOP;
+END $$;
+
+-- Replace author table with the one without duplicates
+DROP TABLE author;
+ALTER TABLE distinct_name RENAME TO author;
