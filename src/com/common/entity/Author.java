@@ -10,7 +10,7 @@ public class Author {
     private Integer id;
     private String name;
     private static Integer counter=0;
-    private static final String statement = "INSERT INTO author(pub_id, name) VALUES (?,?)";
+    private static final String statement = "INSERT INTO author(author_id, author_name) VALUES (?,?)";
 
     public Author() {
         this.id = generateID();

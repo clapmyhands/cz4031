@@ -8,7 +8,7 @@ import java.sql.SQLException;
 
 public class Article extends Publication{
     private String journal;
-    private static String statement = "INSERT INTO article(pubid, pubkey, title, datetime, journal) VALUES "+
+    private static String statement = "INSERT INTO article(pub_id, pub_key, title, pub_date, journal) VALUES "+
             "(?,?,?,?,?)";
 
     public Article() {
@@ -37,7 +37,8 @@ public class Article extends Publication{
         Article article = new Article();
         article.setKey("abc");
         article.setTitle("stefan's adventure");
-        article.setDate("2017-10-10");
+        article.setDate("2017-01-31");
+        article.setMonth(1);
         article.setJournal("dayone");
 
         PostgreSQL postgreSQL = new PostgreSQL();

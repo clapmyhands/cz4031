@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class Inproceedings extends Publication {
     private String conf;
     private String booktitle;
-    private String statement = "INSERT INTO proceeding(pubid, pubkey, title, datetime, booktitle) VALUES " + "(?, ?, ?, ?, ?)";
+    private String statement = "INSERT INTO inproceedings(pub_id, pub_key, title, pub_date, booktitle) VALUES " + "(?, ?, ?, ?, ?)";
 
     public Inproceedings() {
         this.conf = null;

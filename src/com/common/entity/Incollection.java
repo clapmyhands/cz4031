@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 public class Incollection extends Publication {
-    private String statement = "INSERT INTO incollection(pubid, pubkey, title, datetime) VALUES " + "(?, ?, ?, ?)";
+    private String statement = "INSERT INTO incollection(pub_id, pub_key, title, pub_date) VALUES " + "(?, ?, ?, ?)";
 
     public Incollection() {
     }

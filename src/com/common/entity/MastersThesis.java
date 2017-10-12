@@ -6,7 +6,7 @@ import java.sql.SQLException;
 import java.util.UUID;
 
 public class MastersThesis extends Publication {
-    private String statement = "INSERT INTO masterthesis(pubid, pubkey, title, datetime) VALUES " + "(?, ?, ?, ?)";
+    private String statement = "INSERT INTO masters_thesis(pub_id, pub_key, title, pub_date) VALUES " + "(?, ?, ?, ?)";
 
     public MastersThesis() {
     }

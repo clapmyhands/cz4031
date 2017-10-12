@@ -1,0 +1,10 @@
+DELETE FROM authored;
+DELETE FROM author;
+DELETE FROM article;
+DELETE FROM book;
+DELETE FROM incollection;
+DELETE FROM inproceedings;
+DELETE FROM masters_thesis;
+DELETE FROM phd_thesis;
+DELETE FROM proceedings;
+DELETE FROM publication;

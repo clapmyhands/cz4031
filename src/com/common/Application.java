@@ -16,10 +16,10 @@ public class Application {
             SAXParser parser = spf.newSAXParser();
 
             DefaultHandler handler = new DblpHandler(postgreSQL);
-            File file = new File("third.xml");
+            File file = new File("dblp.xml");
             parser.parse(file, handler);
             postgreSQL.executeBatch();
-
+            postgreSQL.closeConnection();
         } catch(Exception e) {
             e.printStackTrace();
         } finally {

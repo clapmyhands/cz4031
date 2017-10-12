@@ -2,12 +2,16 @@ package com.common;
 
 import com.common.entity.*;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Properties;
+import java.util.logging.*;
 
 
 public class PostgreSQL {
+    private Logger logger = Logger.getLogger("dblp-parser");
+    private FileHandler fh;
 
     private Connection connection;
 
@@ -16,21 +20,29 @@ public class PostgreSQL {
     private Publication publicationRecord;
     private Author authorRecord;
     private Authored authoredRecord;
-    private int counter;
+    private int counter=0;
 
     public PostgreSQL(){
         try {
             //Class.forName("java.sql.Driver");
-            String url = "jdbc:postgresql://localhost:5432/cz4031_project1";
+            String url = "jdbc:postgresql://localhost:5432/dblp";
             Properties prop = new Properties();
             prop.setProperty("user", "cz4031");
-            //prop.setProperty("password", "cz4031");
+            prop.setProperty("password", "cz4031");
             Connection conn = DriverManager.getConnection(url, prop);
             conn.setAutoCommit(false);
             System.out.println("Database successfully connected");
 
             this.connection = conn;
+
+            fh = new FileHandler("./dblp-parse.log");
+            fh.setFormatter(new SimpleFormatter());
+            logger.addHandler(fh);
+            logger.setUseParentHandlers(false);
+
         } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (IOException e){
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
@@ -107,11 +119,11 @@ public class PostgreSQL {
         this.publicationRecord.setTitle(title);
     }
 
-    public void setFieldPublicationYear(Integer year) {
+    public void setFieldPublicationYear(int year) {
         this.publicationRecord.setYear(year);
     }
 
-    public void setFieldPublicationMonth(Integer month){
+    public void setFieldPublicationMonth(int month){
         this.publicationRecord.setMonth(month);
     }
 
@@ -153,25 +165,27 @@ public class PostgreSQL {
         this.publicationRecord = null;
     }
 
-    public void addToBatch(PreparedStatement pst){
+    public void addToBatch(PreparedStatement pst) throws SQLException{
         this.listOfPreparedStatement.add(pst);
         ++counter;
-        System.out.println(String.format("%d: %s", counter, pst.toString()));
+        pst.addBatch();
+        // System.out.println(String.format("%d: %s", counter, pst.toString()));
+        logger.info(String.format("%d: %s", counter, pst.toString()));
         if(counter%1000==0){
-            //executeBatch();
+            executeBatch();
             listOfPreparedStatement = new ArrayList<PreparedStatement>();
         }
     }
 
-    public void executeBatch(){
+    public void executeBatch() {
         try {
             for (PreparedStatement pst : listOfPreparedStatement) {
-                System.out.println(pst.toString());
-                //pst.executeBatch();
+                //System.out.println(pst.toString());
+                pst.executeBatch();
             }
-        } catch (Exception e){
+            this.connection.commit();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
 }

@@ -48,20 +48,20 @@ public class Publication {
         this.title = cleanText(title);
     }
 
-    public void setYear(Integer year) {
+    public void setYear(int year) {
         this.cal.set(Calendar.YEAR, year);
     }
 
-    public void setMonth(Integer month) {
+    public void setMonth(int month) {
         this.cal.set(Calendar.MONTH, month);
     }
 
-    public void setDay(Integer day) {
+    public void setDay(int day) {
         this.cal.set(Calendar.DAY_OF_MONTH, day);
     }
 
     public void setDate(String date){
-        DateFormat df = new SimpleDateFormat("yyyy-mm-dd", Locale.ENGLISH);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         df.setTimeZone(TimeZone.getTimeZone("GMT+0:00"));
         try{
             this.cal.setTime(df.parse(date));
@@ -75,7 +75,7 @@ public class Publication {
         pst.setObject(1, this.id);
         pst.setString(2, this.key);
         pst.setString(3, this.title);
-        pst.setString(4, date.toString()); // use string to bypass local timezone
+        pst.setDate(4, date); // use string to bypass local timezone
         return pst;
     }
 
