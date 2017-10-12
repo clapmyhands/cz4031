@@ -235,29 +235,37 @@ INSERT INTO Authored VALUES
 (68, 104),
 (68, 105);
 
-CREATE VIEW PublicationAuthor AS 
+CREATE VIEW publication_author AS 
 (
-   SELECT pb.pub_id, pb.title, pb.year, a.name
-   FROM Publications AS pb, Authored AS aed, Author AS a
+   SELECT pb.pub_id, pb.title, pb.pub_date, a.name
+   FROM publications AS pb, authored AS aed, author AS a
    WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
    ORDER BY pb.pub_id
 );
 
-CREATE VIEW ConfJournalPapers AS (
+CREATE VIEW confjournalpapers AS (
    SELECT *
    FROM (
       SELECT pub_id, title, year, conf AS confjournal
-      FROM Inproceedings
+      FROM inproceedings
    ) AS resultSet
 
    UNION (
       SELECT pub_id, title, year, journal AS confjournal
-      FROM Article
+      FROM article
    )
 );
 
-CREATE VIEW PapersWithAuthors AS (
+CREATE VIEW papers_with_authors AS (
    SELECT cjp.*, pa.name
-   FROM ConfJournalPapers cjp, PublicationAuthor pa
+   FROM confjournalpapers cjp, publication_author pa
    WHERE cjp.pub_id = pa.pub_id
+);
+
+CREATE VIEW proceedings_inproceedings AS (
+    SELECT *
+    FROM proceedings 
+    UNION 
+    SELECT *
+    FROM inproceedings
 );
