@@ -1,31 +1,56 @@
 -- CREATE TABLE/VIEW queries
 
-CREATE TABLE publication (
+CREATE TABLE book (
+    pub_id INT PRIMARY KEY,
+    pub_key TEXT UNIQUE,
+    title TEXT,
+    pub_date DATE
+);
+
+CREATE TABLE incollection (
    pub_id INT PRIMARY KEY,
    pub_key TEXT UNIQUE,
    title TEXT,
    pub_date DATE
 );
 
-CREATE TABLE book () INHERITS (publication);
+CREATE TABLE masters_thesis (
+   pub_id INT PRIMARY KEY,
+   pub_key TEXT UNIQUE,
+   title TEXT,
+   pub_date DATE
+);
 
-CREATE TABLE incollection () INHERITS (publication);
-
-CREATE TABLE masters_thesis () INHERITS (publication);
-
-CREATE TABLE phd_thesis () INHERITS (publication);
+CREATE TABLE phd_thesis (
+   pub_id INT PRIMARY KEY,
+   pub_key TEXT UNIQUE,
+   title TEXT,
+   pub_date DATE
+);
 
 CREATE TABLE proceedings (
+   pub_id INT PRIMARY KEY,
+   pub_key TEXT UNIQUE,
+   title TEXT,
+   pub_date DATE,
    booktitle TEXT
-) INHERITS (publication);
+);
 
 CREATE TABLE inproceedings (
+   pub_id INT PRIMARY KEY,
+   pub_key TEXT UNIQUE,
+   title TEXT,
+   pub_date DATE,
    booktitle TEXT
-) INHERITS (publication);
+);
 
 CREATE TABLE Article (
+   pub_id INT PRIMARY KEY,
+   pub_key TEXT UNIQUE,
+   title TEXT,
+   pub_date DATE,
    journal TEXT
-) INHERITS (publication);
+);
 
 CREATE TABLE author (
    author_id INTEGER PRIMARY KEY,
