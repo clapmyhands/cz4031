@@ -25,6 +25,8 @@ public class DblpHandler extends DefaultHandler{
     private boolean month = false;
     private boolean booktitle = false;
 
+    private StringBuffer sb = new StringBuffer();
+
     public DblpHandler(PostgreSQL postgreSQL) {
         this.postgreSQL = postgreSQL;
     }
@@ -43,24 +45,32 @@ public class DblpHandler extends DefaultHandler{
                 case "author":
                     postgreSQL.generateAuthorRecord();
                     postgreSQL.generateAuthoredRecord();
+                    sb.setLength(0);
                     author=true;
                     break;
                 case "title":
+                    sb.setLength(0);
                     title=true;
                     break;
                 case "year":
+                    sb.setLength(0);
                     year = true;
                     break;
                 case "month":
+                    sb.setLength(0);
                     month = true;
                     break;
                 case "booktitle":
-                    if(proceedings || inproceedings)
+                    if(proceedings || inproceedings) {
+                        sb.setLength(0);
                         booktitle = true;
+                    }
                     break;
                 case "journal":
-                    if(article)
+                    if(article) {
+                        sb.setLength(0);
                         journal = true;
+                    }
                     break;
                 case "article":
                     article=true;
@@ -107,7 +117,7 @@ public class DblpHandler extends DefaultHandler{
         if(lowerName.equalsIgnoreCase("www")){
             www=false;
             return;
-        }
+        } else if(www) return;
         try {
             if(Publication.checkType(lowerName)){
                 article=false;
@@ -121,6 +131,46 @@ public class DblpHandler extends DefaultHandler{
                 month = false;
                 booktitle = false;
                 postgreSQL.generatePublicationStatement();
+            } else{
+                switch(lowerName){
+                    case "author":
+                        postgreSQL.setFieldAuthorName(sb.toString());
+                        postgreSQL.setFieldAuthored();
+                        postgreSQL.generateAuthorStatement();
+                        postgreSQL.generateAuthoredStatement();
+                        author=false;
+                        break;
+                    case "title":
+                        postgreSQL.setFieldPublicationTitle(sb.toString());
+                        title=false;
+                        break;
+                    case "year":
+                        try {
+                            postgreSQL.setFieldPublicationYear(Integer.parseInt(sb.toString()));
+                        } catch (NumberFormatException e) {e.printStackTrace();}
+                        year=false;
+                        break;
+                    case "month":
+                        try{
+                            postgreSQL.setFieldPublicationMonth(Integer.parseInt(sb.toString()));
+                        } catch (NumberFormatException e) {}
+                        month=false;
+                        break;
+                    case "booktitle":
+                        if(proceedings){
+                            postgreSQL.setFieldProceedingsBooktitle(sb.toString());
+                        } else if(inproceedings){
+                            postgreSQL.setFieldInproceedingsBooktitle(sb.toString());
+                        }
+                        booktitle=false;
+                        break;
+                    case "journal":
+                        if(article){
+                            postgreSQL.setFieldArticleJournal(sb.toString());
+                        }
+                        journal=false;
+                        break;
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -130,39 +180,14 @@ public class DblpHandler extends DefaultHandler{
 
     @Override
     public void characters(char[] ch, int start, int length){
-        String value = new String(ch, start, length);
         if(www)
             return;
         try {
-            if(author){
-                postgreSQL.setFieldAuthorName(value);
-                postgreSQL.setFieldAuthored();
-                postgreSQL.generateAuthorStatement();
-                postgreSQL.generateAuthoredStatement();
-                author=false;
-            } else if(title){
-                postgreSQL.setFieldPublicationTitle(value);
-                title=false;
-            } else if(year){
-                postgreSQL.setFieldPublicationYear(Integer.parseInt(value));
-                year=false;
-            } else if(month){
-                postgreSQL.setFieldPublicationMonth(Integer.parseInt(value));
-                month=false;
-            } else if(booktitle){
-                if(proceedings){
-                    postgreSQL.setFieldProceedingsBooktitle(value);
-                } else if(inproceedings){
-                    postgreSQL.setFieldInproceedingsBooktitle(value);
-                }
-                booktitle=false;
-            } else if(journal){
-                if(article){
-                    postgreSQL.setFieldArticleJournal(value);
-                }
-                journal=false;
+            if(author || title || year || month || booktitle || journal){
+                sb.append(ch, start, length);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
