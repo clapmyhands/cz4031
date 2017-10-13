@@ -9,7 +9,7 @@ import java.sql.SQLException;
 public class Author {
     private Integer id;
     private String name;
-    private static Integer counter=0;
+    private static Integer counter=6894407;
     private static final String statement = "INSERT INTO author(author_id, author_name) VALUES (?,?)";
 
     public Author() {

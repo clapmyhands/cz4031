@@ -138,13 +138,13 @@ public class PostgreSQL {
     }
 
     public void setFieldInproceedingsBooktitle(String booktitle){
-        if(this.publicationRecord instanceof  Inproceedings){
+        if(this.publicationRecord instanceof Inproceedings){
             ((Inproceedings) this.publicationRecord).setBooktitle(booktitle);
         }
     }
 
     public void setFieldProceedingsBooktitle(String booktitle){
-        if(this.publicationRecord instanceof  Proceedings){
+        if(this.publicationRecord instanceof Proceedings){
             ((Proceedings) this.publicationRecord).setBooktitle(booktitle);
         }
     }
@@ -185,7 +185,9 @@ public class PostgreSQL {
             }
             this.connection.commit();
         } catch (Exception e) {
+            logger.severe(e.toString());
             e.printStackTrace();
+            System.exit(0);
         }
     }
 }
