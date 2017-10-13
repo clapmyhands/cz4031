@@ -37,7 +37,7 @@ FROM (
        FROM article
        )
       ) AS publ_list
-WHERE year BETWEEN 2000 AND 2007
+WHERE year BETWEEN 2000 AND 2017
 GROUP BY type
 ORDER BY type;
 
@@ -113,7 +113,6 @@ CREATE VIEW papers_with_authors AS (
    WHERE cjp.pub_id = pa.pub_id
 );
 
--- number of papers: 10 reduced to 2, 15 reduced to 3
 -- (4a)
 SELECT DISTINCT pwa1.author_name 
 FROM papers_with_authors pwa1
@@ -122,13 +121,13 @@ WHERE pwa1.author_name IN (
    FROM papers_with_authors
    WHERE confjournal = 'PVLDB'
    GROUP BY name, confjournal
-   HAVING COUNT(DISTINCT pub_id) > 2
+   HAVING COUNT(DISTINCT pub_id) > 10
 ) INTERSECT (
    SELECT DISTINCT name
    FROM papers_with_authors
    WHERE confjournal = 'SIGMOD'
    GROUP BY name, confjournal
-   HAVING COUNT(DISTINCT pub_id) > 2
+   HAVING COUNT(DISTINCT pub_id) > 10
 );
 
 -- (4b)
@@ -139,7 +138,7 @@ WHERE pwa1.author_name IN (
    FROM papers_with_authors
    WHERE confjournal = 'PVLDB'
    GROUP BY name, confjournal
-   HAVING COUNT(DISTINCT pub_id) > 3
+   HAVING COUNT(DISTINCT pub_id) > 15
 ) AND pwa1.author_name NOT IN (
    SELECT DISTINCT name
    FROM papers_with_authors
