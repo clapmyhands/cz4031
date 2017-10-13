@@ -10,4 +10,4 @@ CREATE INDEX author_name ON author(author_name);
 
 CREATE INDEX proceedings_conference ON proceedings(booktitle);
 CREATE INDEX inproceedings_conference ON inproceedings(booktitle);
-CREATE INDEX article_journal ON article USING HASH(journal);
+CREATE INDEX article_journal ON article(journal);
