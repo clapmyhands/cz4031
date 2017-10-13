@@ -98,7 +98,7 @@ CREATE VIEW confjournalpapers AS (
    SELECT *
    FROM (
       SELECT pub_id, title, booktitle AS confjournal
-      FROM inproceedings
+      FROM proceedings_inproceedings
    ) AS result_set
 
    UNION (
@@ -151,7 +151,7 @@ WHERE pwa1.author_name IN (
 SELECT * INTO yearly_count
 FROM (
       SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
-      FROM inproceedings
+      FROM proceedings_inproceedings
       GROUP BY year
       ) AS result_set;
 
@@ -248,7 +248,7 @@ DROP VIEW IF EXISTS valid_conferences CASCADE;
 
 CREATE VIEW valid_conferences AS (
     SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS pub_count
-    FROM inproceedings
+    FROM proceedings_inproceedings
     WHERE booktitle in (
         SELECT DISTINCT booktitle 
         FROM proceedings_inproceedings
