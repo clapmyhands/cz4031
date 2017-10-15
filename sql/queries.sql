@@ -1,6 +1,6 @@
 -- QUERY 1
 
-SELECT type, COUNT(*) -- can use count(1) wat
+SELECT type, COUNT(*)
 FROM (
       (
        SELECT 'book' as type, extract(year from pub_date) as year
@@ -40,6 +40,7 @@ FROM (
 WHERE year BETWEEN 2000 AND 2017
 GROUP BY type
 ORDER BY type;
+--
 
 -- QUERY 2
 DROP VIEW IF EXISTS proceedings_inproceedings CASCADE;
@@ -63,6 +64,7 @@ FROM (
       GROUP BY booktitle, year
       ) AS result_set
 WHERE conferences_count > 200;
+--
 
 -- QUERY 3
 DROP VIEW IF EXISTS publication_author CASCADE;
@@ -95,11 +97,9 @@ FROM (
       GROUP BY author_name, booktitle, year
    ) AS result_set
 WHERE author_name = 'Liming Chen' AND year = 2009 AND paper_count > 1 AND booktitle = 'ACIVS';
-
+--
 
 -- QUERY 4
--- I assume that by 'SIGMOD papers' the question meant any publications under
--- conference/journal SIGMOD
 
 DROP VIEW IF EXISTS conf_journal_papers CASCADE;
 DROP VIEW IF EXISTS papers_with_authors CASCADE;
@@ -122,7 +122,6 @@ CREATE VIEW papers_with_authors AS (
    WHERE cjp.pub_id = pa.pub_id
 );
 
--- number of papers: 10 reduced to 2, 15 reduced to 3
 -- (4a)
 (
    SELECT DISTINCT author_name
@@ -152,6 +151,7 @@ WHERE pwa1.author_name IN (
    FROM papers_with_authors
    WHERE confjournal SIMILAR TO '%KDD%'
 );
+--
 
 -- QUERY 5
 SELECT * INTO yearly_count
@@ -200,6 +200,7 @@ FROM (
 ORDER BY year_range;
 
 DROP TABLE yearly_count;
+--
 
 -- QUERY 6
 DROP VIEW IF EXISTS data_conferences CASCADE;
@@ -232,6 +233,7 @@ SELECT author_name, collab_count
 FROM collaborators_count
 WHERE collab_count = (SELECT MAX(collab_count) FROM collaborators_count)
 ORDER BY author_name;
+--
 
 -- QUERY 7
 DROP VIEW IF EXISTS data_conferences_5year CASCADE;
@@ -247,6 +249,7 @@ FROM data_conferences_5year
 GROUP BY author_name
 ORDER BY pub_count DESC
 LIMIT 10;
+--
 
 -- QUERY 8
 DROP VIEW IF EXISTS valid_conferences CASCADE;
@@ -265,8 +268,10 @@ CREATE VIEW valid_conferences AS (
 SELECT DISTINCT booktitle, year, pub_count
 FROM valid_conferences
 WHERE pub_count > 100
+--
 
 -- QUERY 9
+
 -- (9a)
 SELECT *
 INTO h_family
@@ -312,6 +317,7 @@ WHERE ad.author_id = ea.author_id
 GROUP BY ea.author_id, ea.author_name;
 
 DROP TABLE IF EXISTS early_author;
+--
 
 -- QUERY 10
 -- For each year, find the author with the most publication published and the number of publications by that author.
@@ -331,7 +337,7 @@ WITH result AS (
 SELECT year, author_name, pub_count
 FROM result
 WHERE row = 1;
-
+--
 
 
 -- Query to delete duplicates in author and then update the authored table

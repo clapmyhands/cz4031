@@ -70,6 +70,7 @@ CREATE VIEW publication_author AS
    WHERE pb.pub_id = aed.pub_id AND aed.author_ID = a.author_ID
    ORDER BY pb.pub_id
 );
+
 /*
 CREATE VIEW conf_journal_papers AS (
    SELECT *

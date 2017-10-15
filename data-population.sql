@@ -112,50 +112,51 @@ INSERT INTO Article VALUES
 (67, 'Database Principles', 2004, 'PVLDB'),
 (68, 'Database Principles', 2001, 'PVLDB');
 
-SELECT * INTO TABLE Publications
+CREATE VIEW publication AS (
+SELECT *
 FROM 
 (
    (
     SELECT *
-    FROM Book
+    FROM book
     )
 
    UNION
    (
     SELECT *
-    FROM Incollection
+    FROM incollection
     )
 
    UNION
    (
     SELECT *
-    FROM MastersThesis
+    FROM masters_thesis
     )
 
    UNION
    (
     SELECT *
-    FROM PhdThesis
+    FROM phd_thesis
     )
 
    UNION
    (
     SELECT pub_id, title, year
-    FROM Proceedings
+    FROM proceedings
     )
 
    UNION
    (
     SELECT pub_id, title, year
-    FROM Inproceedings
+    FROM inproceedings
     )
 
    UNION
    (
     SELECT pub_id, title, year
-    FROM Article
+    FROM article
     )
-) as publ_list;
+);
 
 CREATE TABLE Author 
 (
