@@ -157,42 +157,42 @@ WHERE pwa1.author_name IN (
 SELECT * INTO yearly_count
 FROM (
       SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
-      FROM inproceedings
+      FROM proceedings_inproceedings
       GROUP BY year
       ) AS result_set;
 
 SELECT *
 FROM (
       (
-       SELECT '1970-1979' AS year_range, paper_count
+       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 1970 AND 1979
        )
 
       UNION
       (
-       SELECT '1980-1989' AS year_range, paper_count
+       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 1980 AND 1989
        )
 
       UNION
       (
-       SELECT '1990-1999' AS year_range, paper_count
+       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 1990 AND 1999
        )
 
       UNION
       (
-       SELECT '2000-2009' AS year_range, paper_count
+       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 2000 AND 2009
        )
 
       UNION
       (
-       SELECT '2010-2019' AS year_range, paper_count
+       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 2010 AND 2019
        )
