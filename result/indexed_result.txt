@@ -215,6 +215,7 @@ CREATE VIEW
  Wenfei Fan
 (12 rows)
 
+SELECT 60
  year_range | decade_paper_count 
 ------------+--------------------
  1970-1979  |              12784

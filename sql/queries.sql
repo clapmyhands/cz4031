@@ -1,14 +1,14 @@
-DROP INDEX IF EXISTS book_date ON book(pub_date);
-DROP INDEX IF EXISTS article_date ON article(pub_date);
-DROP INDEX IF EXISTS incollection_date ON incollection(pub_date);
-DROP INDEX IF EXISTS masters_thesis_date ON masters_thesis(pub_date);
-DROP INDEX IF EXISTS phd_thesis_date ON phd_thesis(pub_date);
-DROP INDEX IF EXISTS proceedings_date ON proceedings(pub_date);
-DROP INDEX IF EXISTS inproceedings_date ON inproceedings(pub_date);
+DROP INDEX IF EXISTS book_date;
+DROP INDEX IF EXISTS article_date;
+DROP INDEX IF EXISTS incollection_date;
+DROP INDEX IF EXISTS masters_thesis_date;
+DROP INDEX IF EXISTS phd_thesis_date;
+DROP INDEX IF EXISTS proceedings_date;
+DROP INDEX IF EXISTS inproceedings_date;
 
-DROP INDEX IF EXISTS proceedings_conference ON proceedings(booktitle);
-DROP INDEX IF EXISTS inproceedings_conference ON inproceedings(booktitle);
-DROP INDEX IF EXISTS article_journal ON article(journal);
+DROP INDEX IF EXISTS proceedings_conference;
+DROP INDEX IF EXISTS inproceedings_conference;
+DROP INDEX IF EXISTS article_journal;
 
 DROP VIEW IF EXISTS publication_author CASCADE;
 

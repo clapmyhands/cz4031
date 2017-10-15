@@ -1,9 +1,29 @@
-LOG:  database system was shut down at 2017-10-15 15:30:47 +08
+LOG:  database system was shut down at 2017-10-15 18:16:34 +08
 LOG:  MultiXact member wraparound protections are now enabled
 LOG:  database system is ready to accept connections
 LOG:  autovacuum launcher started
+LOG:  statement: CREATE INDEX book_date ON book(pub_date);
+LOG:  duration: 11.289 ms
+LOG:  statement: CREATE INDEX article_date ON article(pub_date);
+LOG:  duration: 1608.364 ms
+LOG:  statement: CREATE INDEX incollection_date ON incollection(pub_date);
+LOG:  duration: 28.770 ms
+LOG:  statement: CREATE INDEX masters_thesis_date ON masters_thesis(pub_date);
+LOG:  duration: 0.775 ms
+LOG:  statement: CREATE INDEX phd_thesis_date ON phd_thesis(pub_date);
+LOG:  duration: 45.844 ms
+LOG:  statement: CREATE INDEX proceedings_date ON proceedings(pub_date);
+LOG:  duration: 27.904 ms
+LOG:  statement: CREATE INDEX inproceedings_date ON inproceedings(pub_date);
+LOG:  duration: 1832.977 ms
+LOG:  statement: CREATE INDEX proceedings_conference ON proceedings(booktitle);
+LOG:  duration: 27.715 ms
+LOG:  statement: CREATE INDEX inproceedings_conference ON inproceedings(booktitle);
+LOG:  duration: 2185.269 ms
+LOG:  statement: CREATE INDEX article_journal ON article(journal);
+LOG:  duration: 2082.022 ms
 LOG:  statement: DROP VIEW IF EXISTS publication_author CASCADE;
-LOG:  duration: 2.659 ms
+LOG:  duration: 2.756 ms
 LOG:  statement: CREATE VIEW publication_author AS 
 	(
 	   SELECT pb.pub_id, pb.title, a.author_name
@@ -11,7 +31,7 @@ LOG:  statement: CREATE VIEW publication_author AS
 	   WHERE pb.pub_id = aed.pub_id AND aed.author_ID = a.author_ID
 	   ORDER BY pb.pub_id
 	);
-LOG:  duration: 2.421 ms
+LOG:  duration: 2.051 ms
 LOG:  statement: SELECT type, COUNT(*)
 	FROM (
 	      (
@@ -52,9 +72,9 @@ LOG:  statement: SELECT type, COUNT(*)
 	WHERE year BETWEEN 2000 AND 2017
 	GROUP BY type
 	ORDER BY type;
-LOG:  duration: 3799.927 ms
+LOG:  duration: 3618.163 ms
 LOG:  statement: DROP VIEW IF EXISTS proceedings_inproceedings CASCADE;
-LOG:  duration: 0.728 ms
+LOG:  duration: 0.647 ms
 LOG:  statement: CREATE VIEW proceedings_inproceedings AS (
 	    SELECT *
 	    FROM proceedings 
@@ -62,7 +82,7 @@ LOG:  statement: CREATE VIEW proceedings_inproceedings AS (
 	    SELECT *
 	    FROM inproceedings
 	);
-LOG:  duration: 1.199 ms
+LOG:  duration: 0.825 ms
 LOG:  statement: SELECT *
 	FROM (
 	      SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS conferences_count
@@ -74,9 +94,9 @@ LOG:  statement: SELECT *
 	      GROUP BY booktitle, year
 	      ) AS result_set
 	WHERE conferences_count > 200;
-LOG:  duration: 739.884 ms
+LOG:  duration: 753.995 ms
 LOG:  statement: DROP VIEW IF EXISTS publication_author CASCADE;
-LOG:  duration: 0.529 ms
+LOG:  duration: 0.554 ms
 LOG:  statement: CREATE VIEW publication_author AS 
 	(
 	   SELECT pb.pub_id, pb.title, pb.pub_date, a.author_name
@@ -84,15 +104,15 @@ LOG:  statement: CREATE VIEW publication_author AS
 	   WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
 	   ORDER BY pb.pub_id
 	);
-LOG:  duration: 1.079 ms
+LOG:  duration: 0.797 ms
 LOG:  statement: SELECT author_name, pub_id, title
 	FROM publication_author
 	WHERE author_name = 'Liming Chen' AND extract(year from pub_date) = 2015;
-LOG:  duration: 1877.219 ms
+LOG:  duration: 1856.591 ms
 LOG:  statement: SELECT author_name, pa.pub_id, pa.title
 	FROM publication_author pa, proceedings_inproceedings i
 	WHERE pa.pub_id = i.pub_id AND author_name = 'Liming Chen' AND extract(year from pa.pub_date) = 2015 AND i.booktitle = 'ICB';
-LOG:  duration: 2196.266 ms
+LOG:  duration: 1866.645 ms
 LOG:  statement: SELECT *
 	FROM (
 	      SELECT author_name, booktitle, EXTRACT(YEAR FROM pa.pub_date) AS year, COUNT(*) AS paper_count
@@ -102,11 +122,11 @@ LOG:  statement: SELECT *
 	      GROUP BY author_name, booktitle, year
 	   ) AS result_set
 	WHERE author_name = 'Liming Chen' AND year = 2009 AND paper_count > 1 AND booktitle = 'ACIVS';
-LOG:  duration: 2090.880 ms
+LOG:  duration: 1751.740 ms
 LOG:  statement: DROP VIEW IF EXISTS conf_journal_papers CASCADE;
-LOG:  duration: 0.147 ms
+LOG:  duration: 0.134 ms
 LOG:  statement: DROP VIEW IF EXISTS papers_with_authors CASCADE;
-LOG:  duration: 0.100 ms
+LOG:  duration: 0.053 ms
 LOG:  statement: CREATE VIEW conf_journal_papers AS (
 	   SELECT *
 	   FROM (
@@ -118,13 +138,13 @@ LOG:  statement: CREATE VIEW conf_journal_papers AS (
 	      FROM article
 	   )
 	);
-LOG:  duration: 2.041 ms
+LOG:  duration: 2.042 ms
 LOG:  statement: CREATE VIEW papers_with_authors AS (
 	   SELECT cjp.*, pa.author_name
 	   FROM conf_journal_papers cjp, publication_author pa
 	   WHERE cjp.pub_id = pa.pub_id
 	);
-LOG:  duration: 0.911 ms
+LOG:  duration: 0.899 ms
 LOG:  statement: (
 	   SELECT DISTINCT author_name
 	   FROM papers_with_authors
@@ -138,7 +158,7 @@ LOG:  statement: (
 	   GROUP BY author_name, confjournal
 	   HAVING COUNT(DISTINCT pub_id) > 9
 	);
-LOG:  duration: 42646.223 ms
+LOG:  duration: 44563.869 ms
 LOG:  statement: SELECT DISTINCT pwa1.author_name 
 	FROM papers_with_authors pwa1
 	WHERE pwa1.author_name IN (
@@ -152,71 +172,76 @@ LOG:  statement: SELECT DISTINCT pwa1.author_name
 	   FROM papers_with_authors
 	   WHERE confjournal SIMILAR TO '%KDD%'
 	);
-LOG:  duration: 74544.083 ms
+LOG:  duration: 78852.807 ms
 LOG:  statement: SELECT *
 	INTO yearly_count
 	FROM (
 	      SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
-	      FROM inproceedings
+	      FROM proceedings_inproceedings
 	      GROUP BY year
 	      ) AS result_set;
-LOG:  duration: 801.094 ms
+LOG:  duration: 3177.918 ms
 LOG:  statement: SELECT *
 	FROM (
 	      (
-	       SELECT '1970-1979' AS year_range, paper_count
+	       SELECT '1970-1979' AS year_range, SUM(paper_count) as decade_paper_count
 	       FROM yearly_count
 	       WHERE year BETWEEN 1970 AND 1979
+	       GROUP BY year_range
 	       )
 	      UNION
 	      (
-	       SELECT '1980-1989' AS year_range, paper_count
+	       SELECT '1980-1989' AS year_range, SUM(paper_count) as decade_paper_count
 	       FROM yearly_count
 	       WHERE year BETWEEN 1980 AND 1989
+	       GROUP BY year_range
 	       )
 	      UNION
 	      (
-	       SELECT '1990-1999' AS year_range, paper_count
+	       SELECT '1990-1999' AS year_range, SUM(paper_count) as decade_paper_count
 	       FROM yearly_count
 	       WHERE year BETWEEN 1990 AND 1999
+	       GROUP BY year_range
 	       )
 	      UNION
 	      (
-	       SELECT '2000-2009' AS year_range, paper_count
+	       SELECT '2000-2009' AS year_range, SUM(paper_count) as decade_paper_count
 	       FROM yearly_count
 	       WHERE year BETWEEN 2000 AND 2009
+	       GROUP BY year_range
 	       )
 	      UNION
 	      (
-	       SELECT '2010-2019' AS year_range, paper_count
+	       SELECT '2010-2019' AS year_range, SUM(paper_count) as decade_paper_count
 	       FROM yearly_count
 	       WHERE year BETWEEN 2010 AND 2019
+	       GROUP BY year_range
 	       )
 	) as result_set
 	ORDER BY year_range;
-LOG:  duration: 0.674 ms
+LOG:  duration: 0.899 ms
 LOG:  statement: DROP TABLE yearly_count;
-LOG:  duration: 0.594 ms
+LOG:  duration: 0.584 ms
 LOG:  statement: DROP VIEW IF EXISTS data_conferences CASCADE;
-LOG:  duration: 0.074 ms
+LOG:  duration: 0.050 ms
 LOG:  statement: DROP VIEW IF EXISTS collaborators CASCADE;
-LOG:  duration: 0.057 ms
+LOG:  duration: 0.070 ms
 LOG:  statement: DROP VIEW IF EXISTS collaborators_count CASCADE;
-LOG:  duration: 0.059 ms
+LOG:  duration: 0.050 ms
 LOG:  statement: CREATE VIEW data_conferences AS 
 	(
 	   SELECT *
 	   FROM papers_with_authors
 	   WHERE confjournal SIMILAR TO '%[dD]ata%'
 	);
-LOG:  duration: 0.687 ms
+LOG:  duration: 0.915 ms
 LOG:  statement: CREATE VIEW collaborators AS
 	(
 	   SELECT dc1.author_name, dc2.author_name as collaborator
 	   FROM data_conferences dc1
 	   JOIN data_conferences dc2 ON dc1.pub_id = dc2.pub_id AND NOT dc1.author_name = dc2.author_name
 	);
-LOG:  duration: 0.705 ms
+LOG:  duration: 0.669 ms
 LOG:  statement: CREATE VIEW collaborators_count AS
 	(
 	   SELECT author_name, COUNT(DISTINCT collaborator) as collab_count
@@ -224,28 +249,28 @@ LOG:  statement: CREATE VIEW collaborators_count AS
 	   GROUP BY author_name
 	   ORDER BY collab_count DESC
 	);
-LOG:  duration: 0.582 ms
+LOG:  duration: 0.703 ms
 LOG:  statement: SELECT author_name, collab_count
 	FROM collaborators_count
 	WHERE collab_count = (SELECT MAX(collab_count) FROM collaborators_count)
 	ORDER BY author_name;
-LOG:  duration: 93738.821 ms
+LOG:  duration: 105251.173 ms
 LOG:  statement: DROP VIEW IF EXISTS data_conferences_5year CASCADE;
-LOG:  duration: 0.116 ms
+LOG:  duration: 0.087 ms
 LOG:  statement: CREATE VIEW data_conferences_5year AS (
 	    SELECT *
 	    FROM papers_with_authors
 	    WHERE title SIMILAR TO '%[dD]ata%' AND extract(year from pub_date) BETWEEN 2013 AND 2017
 	);
-LOG:  duration: 1.886 ms
+LOG:  duration: 2.413 ms
 LOG:  statement: SELECT author_name, COUNT(DISTINCT pub_id) AS pub_count
 	FROM data_conferences_5year
 	GROUP BY author_name
 	ORDER BY pub_count DESC
 	LIMIT 10;
-LOG:  duration: 24926.106 ms
+LOG:  duration: 39099.398 ms
 LOG:  statement: DROP VIEW IF EXISTS valid_conferences CASCADE;
-LOG:  duration: 0.596 ms
+LOG:  duration: 0.765 ms
 LOG:  statement: CREATE VIEW valid_conferences AS (
 	    SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS pub_count
 	    FROM inproceedings
@@ -256,17 +281,17 @@ LOG:  statement: CREATE VIEW valid_conferences AS (
 	    )
 	    GROUP BY booktitle, year
 	);
-LOG:  duration: 0.769 ms
+LOG:  duration: 0.850 ms
 LOG:  statement: SELECT DISTINCT booktitle, year, pub_count
 	FROM valid_conferences
 	WHERE pub_count > 100
 	ORDER BY pub_count;
-LOG:  duration: 3578.883 ms
+LOG:  duration: 3839.248 ms
 LOG:  statement: SELECT *
 	INTO h_family
 	FROM publication_author pa
 	WHERE pa.author_name SIMILAR TO '% H(\.|[a-z]+)';
-LOG:  duration: 14313.251 ms
+LOG:  duration: 14818.995 ms
 LOG:  statement: SELECT author_name, extract(year from pub_date) as year
 	INTO author_year_1988_2017
 	FROM h_family
@@ -274,7 +299,7 @@ LOG:  statement: SELECT author_name, extract(year from pub_date) as year
 	HAVING
 	    extract(year from pub_date) <= 2017 AND
 	    extract(year from pub_date) >= 1988;
-LOG:  duration: 1261.429 ms
+LOG:  duration: 1191.438 ms
 LOG:  statement: SELECT author_name
 	FROM author_year_1988_2017
 	GROUP BY author_name
@@ -282,11 +307,11 @@ LOG:  statement: SELECT author_name
 	    MAX(year)=2017 AND
 	    MIN(year)=1988 AND
 	    count(year)=30;
-LOG:  duration: 170.155 ms
+LOG:  duration: 165.389 ms
 LOG:  statement: DROP TABLE h_family;
-LOG:  duration: 10.934 ms
+LOG:  duration: 13.138 ms
 LOG:  statement: DROP TABLE author_year_1988_2017;
-LOG:  duration: 2.458 ms
+LOG:  duration: 3.100 ms
 LOG:  statement: SELECT author_name
 	INTO early_author
 	FROM publication_author pa
@@ -295,7 +320,7 @@ LOG:  statement: SELECT author_name
 	    FROM publication_author
 	)
 	GROUP BY author_name;
-LOG:  duration: 41203.816 ms
+LOG:  duration: 44812.224 ms
 LOG:  statement: SELECT ea.author_id, ea.author_name, count(*) as pub_count
 	FROM authored ad, (
 	    SELECT a.*
@@ -304,18 +329,18 @@ LOG:  statement: SELECT ea.author_id, ea.author_name, count(*) as pub_count
 	) as ea
 	WHERE ad.author_id = ea.author_id
 	GROUP BY ea.author_id, ea.author_name;
-LOG:  duration: 1276.447 ms
+LOG:  duration: 1317.751 ms
 LOG:  statement: DROP TABLE IF EXISTS early_author;
-LOG:  duration: 1.784 ms
+LOG:  duration: 1.600 ms
 LOG:  statement: DROP VIEW IF EXISTS yearly_author_pub_count CASCADE;
-LOG:  duration: 0.122 ms
+LOG:  duration: 0.075 ms
 LOG:  statement: CREATE VIEW yearly_author_pub_count AS (
 	    SELECT extract(year from pub_date) as year, author_name, COUNT(*) AS pub_count
 	    FROM publication_author
 	    GROUP BY year, author_name
 	    ORDER BY year, COUNT(*) DESC
 	);
-LOG:  duration: 0.890 ms
+LOG:  duration: 0.786 ms
 LOG:  statement: WITH result AS (
 	    SELECT *, ROW_NUMBER() OVER (PARTITION BY year ORDER BY pub_count DESC) AS row
 	    FROM yearly_author_pub_count
@@ -323,270 +348,8 @@ LOG:  statement: WITH result AS (
 	SELECT year, author_name, pub_count
 	FROM result
 	WHERE row = 1;
-LOG:  duration: 55501.192 ms
-LOG:  statement: SELECT *
-	INTO yearly_count
-	FROM (
-	      SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
-	      FROM proceedings_inproceedings
-	      GROUP BY year
-	      ) AS result_set;
-LOG:  duration: 3108.611 ms
-ERROR:  syntax error at or near "WHERE" at character 166
-STATEMENT:  SELECT *
-	FROM (
-	      (
-	       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1970 AND 1979
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1980 AND 1989
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1990 AND 1999
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 2000 AND 2009
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 2010 AND 2019
-	       )
-	) as result_set
-	ORDER BY year_range;
-ERROR:  syntax error at or near "WHERE" at character 166
-STATEMENT:  SELECT *
-	FROM (
-	      (
-	       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1970 AND 1979
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1980 AND 1989
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1990 AND 1999
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 2000 AND 2009
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 2010 AND 2019
-	       )
-	) as result_set
-	ORDER BY year_range;
-ERROR:  syntax error at or near "WHERE" at character 160
-STATEMENT:  SELECT *
-	FROM (
-	(
-	       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1970 AND 1979
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1980 AND 1989
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 1990 AND 1999
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 2000 AND 2009
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       GROUP BY year_range
-	       WHERE year BETWEEN 2010 AND 2019
-	       )
-	) as result_set
-	ORDER BY year_range;
-LOG:  statement: SELECT *
-	FROM (
-	      (
-	       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1970 AND 1979
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1980 AND 1989
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1990 AND 1999
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 2000 AND 2009
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 2010 AND 2019
-	       GROUP BY year_range
-	       )
-	) as result_set
-	ORDER BY year_range;
-LOG:  duration: 2.254 ms
-LOG:  statement: SELECT *
-	FROM (
-	      (
-	       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1970 AND 1979
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1980 AND 1989
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1990 AND 1999
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 2000 AND 2009
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 2010 AND 2019
-	       GROUP BY year_range
-	       )
-	) as result_set
-	ORDER BY year_range;
-LOG:  duration: 0.933 ms
-LOG:  statement: SELECT *
-	FROM (
-	      (
-	       SELECT '1970-1979' AS year_range, SUM(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1970 AND 1979
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1980-1989' AS year_range, SUM(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1980 AND 1989
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '1990-1999' AS year_range, SUM(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 1990 AND 1999
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2000-2009' AS year_range, SUM(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 2000 AND 2009
-	       GROUP BY year_range
-	       )
-	
-	      UNION
-	      (
-	       SELECT '2010-2019' AS year_range, SUM(paper_count) as decade_paper_count
-	       FROM yearly_count
-	       WHERE year BETWEEN 2010 AND 2019
-	       GROUP BY year_range
-	       )
-	) as result_set
-	ORDER BY year_range;
-LOG:  duration: 2.667 ms
+LOG:  duration: 70544.947 ms
+LOG:  received smart shutdown request
+LOG:  autovacuum launcher shutting down
+LOG:  shutting down
+LOG:  database system is shut down
