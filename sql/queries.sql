@@ -166,6 +166,7 @@ FROM (
       (
        SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
+       GROUP BY year_range
        WHERE year BETWEEN 1970 AND 1979
        )
 
@@ -173,6 +174,7 @@ FROM (
       (
        SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
+       GROUP BY year_range
        WHERE year BETWEEN 1980 AND 1989
        )
 
@@ -180,6 +182,7 @@ FROM (
       (
        SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
+       GROUP BY year_range
        WHERE year BETWEEN 1990 AND 1999
        )
 
@@ -187,6 +190,7 @@ FROM (
       (
        SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
+       GROUP BY year_range
        WHERE year BETWEEN 2000 AND 2009
        )
 
@@ -194,6 +198,7 @@ FROM (
       (
        SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
        FROM yearly_count
+       GROUP BY year_range
        WHERE year BETWEEN 2010 AND 2019
        )
       ) as result_set
