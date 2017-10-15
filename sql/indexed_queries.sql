@@ -6,15 +6,22 @@ CREATE INDEX phd_thesis_date ON phd_thesis(pub_date);
 CREATE INDEX proceedings_date ON proceedings(pub_date);
 CREATE INDEX inproceedings_date ON inproceedings(pub_date);
 
-CREATE INDEX author_name ON author(author_name);
-
 CREATE INDEX proceedings_conference ON proceedings(booktitle);
 CREATE INDEX inproceedings_conference ON inproceedings(booktitle);
 CREATE INDEX article_journal ON article(journal);
 
--- QUERY 1
+DROP VIEW IF EXISTS publication_author CASCADE;
 
-SELECT type, COUNT(*) -- can use count(1) wat
+CREATE VIEW publication_author AS 
+(
+   SELECT pb.pub_id, pb.title, a.author_name
+   FROM publication AS pb, authored AS aed, author AS a
+   WHERE pb.pub_id = aed.pub_id AND aed.author_ID = a.author_ID
+   ORDER BY pb.pub_id
+);
+
+-- QUERY 1
+SELECT type, COUNT(*)
 FROM (
       (
        SELECT 'book' as type, extract(year from pub_date) as year
@@ -54,6 +61,7 @@ FROM (
 WHERE year BETWEEN 2000 AND 2017
 GROUP BY type
 ORDER BY type;
+--
 
 -- QUERY 2
 DROP VIEW IF EXISTS proceedings_inproceedings CASCADE;
@@ -77,6 +85,7 @@ FROM (
       GROUP BY booktitle, year
       ) AS result_set
 WHERE conferences_count > 200;
+--
 
 -- QUERY 3
 DROP VIEW IF EXISTS publication_author CASCADE;
@@ -97,7 +106,7 @@ WHERE author_name = 'Liming Chen' AND extract(year from pub_date) = 2015;
 -- (3b)
 SELECT author_name, pa.pub_id, pa.title
 FROM publication_author pa, proceedings_inproceedings i
-WHERE pa.pub_id = i.pub_id AND author_name = 'Liming Chen' AND extract(year from pa.pub_date)b = 2015 AND i.booktitle = 'CBMI';
+WHERE pa.pub_id = i.pub_id AND author_name = 'Liming Chen' AND extract(year from pa.pub_date) = 2015 AND i.booktitle = 'ICB';
 
 -- (3c)
 SELECT *
@@ -109,11 +118,9 @@ FROM (
       GROUP BY author_name, booktitle, year
    ) AS result_set
 WHERE author_name = 'Liming Chen' AND year = 2009 AND paper_count > 1 AND booktitle = 'ACIVS';
-
+--
 
 -- QUERY 4
--- I assume that by 'SIGMOD papers' the question meant any publications under
--- conference/journal SIGMOD
 
 DROP VIEW IF EXISTS conf_journal_papers CASCADE;
 DROP VIEW IF EXISTS papers_with_authors CASCADE;
@@ -136,7 +143,6 @@ CREATE VIEW papers_with_authors AS (
    WHERE cjp.pub_id = pa.pub_id
 );
 
--- number of papers: 10 reduced to 2, 15 reduced to 3
 -- (4a)
 (
    SELECT DISTINCT author_name
@@ -166,54 +172,62 @@ WHERE pwa1.author_name IN (
    FROM papers_with_authors
    WHERE confjournal SIMILAR TO '%KDD%'
 );
+--
 
 -- QUERY 5
-SELECT * INTO yearly_count
+SELECT *
+INTO yearly_count
 FROM (
       SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
-      FROM inproceedings
+      FROM proceedings_inproceedings
       GROUP BY year
       ) AS result_set;
 
 SELECT *
 FROM (
       (
-       SELECT '1970-1979' AS year_range, paper_count
+       SELECT '1970-1979' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 1970 AND 1979
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '1980-1989' AS year_range, paper_count
+       SELECT '1980-1989' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 1980 AND 1989
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '1990-1999' AS year_range, paper_count
+       SELECT '1990-1999' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 1990 AND 1999
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '2000-2009' AS year_range, paper_count
+       SELECT '2000-2009' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 2000 AND 2009
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '2010-2019' AS year_range, paper_count
+       SELECT '2010-2019' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
        WHERE year BETWEEN 2010 AND 2019
+       GROUP BY year_range
        )
-      ) as result_set
+) as result_set
 ORDER BY year_range;
 
 DROP TABLE yearly_count;
+--
 
 -- QUERY 6
 DROP VIEW IF EXISTS data_conferences CASCADE;
@@ -246,6 +260,7 @@ SELECT author_name, collab_count
 FROM collaborators_count
 WHERE collab_count = (SELECT MAX(collab_count) FROM collaborators_count)
 ORDER BY author_name;
+--
 
 -- QUERY 7
 DROP VIEW IF EXISTS data_conferences_5year CASCADE;
@@ -261,6 +276,7 @@ FROM data_conferences_5year
 GROUP BY author_name
 ORDER BY pub_count DESC
 LIMIT 10;
+--
 
 -- QUERY 8
 DROP VIEW IF EXISTS valid_conferences CASCADE;
@@ -279,8 +295,10 @@ CREATE VIEW valid_conferences AS (
 SELECT DISTINCT booktitle, year, pub_count
 FROM valid_conferences
 WHERE pub_count > 100
+ORDER BY pub_count;
 
 -- QUERY 9
+
 -- (9a)
 SELECT *
 INTO h_family
@@ -301,7 +319,7 @@ GROUP BY author_name
 HAVING
     MAX(year)=2017 AND
     MIN(year)=1988 AND
-    count(year)=30
+    count(year)=30;
 
 DROP TABLE h_family;
 DROP TABLE author_year_1988_2017;
@@ -326,6 +344,7 @@ WHERE ad.author_id = ea.author_id
 GROUP BY ea.author_id, ea.author_name;
 
 DROP TABLE IF EXISTS early_author;
+--
 
 -- QUERY 10
 -- For each year, find the author with the most publication published and the number of publications by that author.
@@ -345,35 +364,3 @@ WITH result AS (
 SELECT year, author_name, pub_count
 FROM result
 WHERE row = 1;
-
-
-
--- Query to delete duplicates in author and then update the authored table
--- Copy author table but without duplicates. Use the author_id with the smallest number.
-WITH result AS (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY author_name ORDER BY author_id) AS row
-    FROM author
-)
-SELECT author_id, author_name 
-INTO distinct_name
-FROM result
-WHERE row = 1;
-
--- Update the authored table
-DO $$
-DECLARE
-    rec RECORD;
-BEGIN
-  FOR rec IN (SELECT * FROM distinct_name) LOOP
-  UPDATE authored
-  SET author_id = rec.author_id
-  WHERE author_id IN (SELECT a.author_id FROM author a WHERE a.author_name = rec.author_name);
-  END LOOP;
-END $$;
-
--- Replace author table with the one without duplicates
-ALTER TABLE distinct_name ADD UNIQUE (author_name);
-
-DROP TABLE author;
-
-ALTER TABLE distinct_name RENAME TO author;
