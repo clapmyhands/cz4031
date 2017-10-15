@@ -293,10 +293,25 @@ DROP TABLE h_family;
 DROP TABLE author_year_1988_2017;
 
 -- (9b)
-SELECT author_name, COUNT(*)
-FROM publication_author
-GROUP BY author_name
-ORDER BY pub_date DESC
+SELECT author_name
+INTO early_author
+FROM publication_author pa
+WHERE pa.pub_date IN (
+    SELECT MIN(pub_date)
+    FROM publication_author
+)
+GROUP BY author_name;
+
+SELECT ea.author_id, ea.author_name, count(*) as pub_count
+FROM authored ad, (
+    SELECT a.*
+    FROM author a, early_author ea
+    WHERE a.author_name = ea.author_name
+) as ea
+WHERE ad.author_id = ea.author_id
+GROUP BY ea.author_id, ea.author_name;
+
+DROP TABLE IF EXISTS early_author;
 
 -- QUERY 10
 -- For each year, find the author with the most publication published and the number of publications by that author.
