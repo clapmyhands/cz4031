@@ -1,0 +1,156 @@
+LOG:  database system was shut down at 2017-10-15 20:04:27 +08
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+LOG:  statement: SELECT * FROM pg_settings WHERE name = 'shared_buffers';
+LOG:  duration: 2.390 ms
+LOG:  statement: SELECT name, setting, unit, min_val, max_val, context
+	FROM   pg_settings WHERE name = 'shared_buffers';
+LOG:  duration: 1.017 ms
+LOG:  statement: /*
+	DROP INDEX IF EXISTS book_date;
+	DROP INDEX IF EXISTS article_date;
+	DROP INDEX IF EXISTS incollection_date;
+	DROP INDEX IF EXISTS masters_thesis_date;
+	DROP INDEX IF EXISTS phd_thesis_date;
+	DROP INDEX IF EXISTS proceedings_date;
+	DROP INDEX IF EXISTS inproceedings_date;
+	
+	DROP INDEX IF EXISTS proceedings_conference;
+	DROP INDEX IF EXISTS inproceedings_conference;
+	DROP INDEX IF EXISTS article_journal;
+	*/
+	CREATE INDEX book_date ON book(pub_date);
+ERROR:  relation "book_date" already exists
+STATEMENT:  /*
+	DROP INDEX IF EXISTS book_date;
+	DROP INDEX IF EXISTS article_date;
+	DROP INDEX IF EXISTS incollection_date;
+	DROP INDEX IF EXISTS masters_thesis_date;
+	DROP INDEX IF EXISTS phd_thesis_date;
+	DROP INDEX IF EXISTS proceedings_date;
+	DROP INDEX IF EXISTS inproceedings_date;
+	
+	DROP INDEX IF EXISTS proceedings_conference;
+	DROP INDEX IF EXISTS inproceedings_conference;
+	DROP INDEX IF EXISTS article_journal;
+	*/
+	CREATE INDEX book_date ON book(pub_date);
+LOG:  statement: CREATE INDEX article_date ON article(pub_date);
+ERROR:  relation "article_date" already exists
+STATEMENT:  CREATE INDEX article_date ON article(pub_date);
+LOG:  statement: CREATE INDEX incollection_date ON incollection(pub_date);
+ERROR:  relation "incollection_date" already exists
+STATEMENT:  CREATE INDEX incollection_date ON incollection(pub_date);
+LOG:  statement: CREATE INDEX masters_thesis_date ON masters_thesis(pub_date);
+ERROR:  relation "masters_thesis_date" already exists
+STATEMENT:  CREATE INDEX masters_thesis_date ON masters_thesis(pub_date);
+LOG:  statement: CREATE INDEX phd_thesis_date ON phd_thesis(pub_date);
+ERROR:  relation "phd_thesis_date" already exists
+STATEMENT:  CREATE INDEX phd_thesis_date ON phd_thesis(pub_date);
+LOG:  statement: CREATE INDEX proceedings_date ON proceedings(pub_date);
+ERROR:  relation "proceedings_date" already exists
+STATEMENT:  CREATE INDEX proceedings_date ON proceedings(pub_date);
+LOG:  statement: CREATE INDEX inproceedings_date ON inproceedings(pub_date);
+ERROR:  relation "inproceedings_date" already exists
+STATEMENT:  CREATE INDEX inproceedings_date ON inproceedings(pub_date);
+LOG:  statement: CREATE INDEX proceedings_conference ON proceedings(booktitle);
+ERROR:  relation "proceedings_conference" already exists
+STATEMENT:  CREATE INDEX proceedings_conference ON proceedings(booktitle);
+LOG:  statement: CREATE INDEX inproceedings_conference ON inproceedings(booktitle);
+ERROR:  relation "inproceedings_conference" already exists
+STATEMENT:  CREATE INDEX inproceedings_conference ON inproceedings(booktitle);
+LOG:  statement: CREATE INDEX article_journal ON article(journal);
+ERROR:  relation "article_journal" already exists
+STATEMENT:  CREATE INDEX article_journal ON article(journal);
+LOG:  statement: DROP VIEW IF EXISTS publication_author CASCADE;
+LOG:  duration: 2.591 ms
+LOG:  statement: CREATE VIEW publication_author AS 
+	(
+	   SELECT pb.pub_id, pb.title, pb.pub_date, a.author_name
+	   FROM publication AS pb, authored AS aed, author AS a
+	   WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
+	   ORDER BY pb.pub_id
+	);
+LOG:  duration: 2.689 ms
+LOG:  statement: SELECT *
+	FROM (
+	      SELECT author_name, booktitle, EXTRACT(YEAR FROM pa.pub_date) AS year, COUNT(*) AS paper_count
+	      FROM proceedings_inproceedings AS i
+	      JOIN publication_author AS pa
+	      ON i.pub_id = pa.pub_id
+	      GROUP BY author_name, booktitle, year
+	   ) AS result_set
+	WHERE author_name = 'Liming Chen' AND year = 2009 AND paper_count > 1 AND booktitle = 'ACIVS';
+LOG:  duration: 1833.668 ms
+LOG:  statement: SELECT *
+	INTO yearly_count
+	FROM (
+	      SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
+	      FROM proceedings_inproceedings
+	      GROUP BY year
+	      ) AS result_set;
+LOG:  duration: 3205.481 ms
+LOG:  statement: SELECT *
+	FROM (
+	      (
+	       SELECT '1970-1979' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 1970 AND 1979
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '1980-1989' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 1980 AND 1989
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '1990-1999' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 1990 AND 1999
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '2000-2009' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 2000 AND 2009
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '2010-2019' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 2010 AND 2019
+	       GROUP BY year_range
+	       )
+	) as result_set
+	ORDER BY year_range;
+LOG:  duration: 1.437 ms
+LOG:  statement: DROP TABLE yearly_count;
+LOG:  duration: 0.580 ms
+LOG:  statement: DROP VIEW IF EXISTS valid_conferences CASCADE;
+LOG:  duration: 0.546 ms
+LOG:  statement: CREATE VIEW valid_conferences AS (
+	    SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS pub_count
+	    FROM inproceedings
+	    WHERE booktitle in (
+	        SELECT DISTINCT booktitle 
+	        FROM inproceedings
+	        WHERE extract(month from pub_date) = 6
+	    )
+	    GROUP BY booktitle, year
+	);
+LOG:  duration: 1.062 ms
+LOG:  statement: SELECT DISTINCT booktitle, year, pub_count
+	FROM valid_conferences
+	WHERE pub_count > 100
+	ORDER BY pub_count;
+LOG:  duration: 3749.757 ms
+LOG:  received smart shutdown request
+LOG:  autovacuum launcher shutting down
+LOG:  shutting down
+LOG:  database system is shut down

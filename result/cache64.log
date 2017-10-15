@@ -1,0 +1,129 @@
+LOG:  database system was shut down at 2017-10-15 20:15:49 +08
+LOG:  MultiXact member wraparound protections are now enabled
+LOG:  database system is ready to accept connections
+LOG:  autovacuum launcher started
+LOG:  statement: DROP INDEX IF EXISTS book_date;
+LOG:  duration: 0.365 ms
+LOG:  statement: DROP INDEX IF EXISTS article_date;
+LOG:  duration: 0.074 ms
+LOG:  statement: DROP INDEX IF EXISTS incollection_date;
+LOG:  duration: 0.091 ms
+LOG:  statement: DROP INDEX IF EXISTS masters_thesis_date;
+LOG:  duration: 0.082 ms
+LOG:  statement: DROP INDEX IF EXISTS phd_thesis_date;
+LOG:  duration: 0.117 ms
+LOG:  statement: DROP INDEX IF EXISTS proceedings_date;
+LOG:  duration: 0.045 ms
+LOG:  statement: DROP INDEX IF EXISTS inproceedings_date;
+LOG:  duration: 0.038 ms
+LOG:  statement: DROP INDEX IF EXISTS proceedings_conference;
+LOG:  duration: 0.063 ms
+LOG:  statement: DROP INDEX IF EXISTS inproceedings_conference;
+LOG:  duration: 0.057 ms
+LOG:  statement: DROP INDEX IF EXISTS article_journal;
+LOG:  duration: 0.049 ms
+LOG:  statement: /*
+	CREATE INDEX book_date ON book(pub_date);
+	CREATE INDEX article_date ON article(pub_date);
+	CREATE INDEX incollection_date ON incollection(pub_date);
+	CREATE INDEX masters_thesis_date ON masters_thesis(pub_date);
+	CREATE INDEX phd_thesis_date ON phd_thesis(pub_date);
+	CREATE INDEX proceedings_date ON proceedings(pub_date);
+	CREATE INDEX inproceedings_date ON inproceedings(pub_date);
+	
+	CREATE INDEX proceedings_conference ON proceedings(booktitle);
+	CREATE INDEX inproceedings_conference ON inproceedings(booktitle);
+	CREATE INDEX article_journal ON article(journal);
+	*/
+	
+	DROP VIEW IF EXISTS publication_author CASCADE;
+LOG:  duration: 1.286 ms
+LOG:  statement: CREATE VIEW publication_author AS 
+	(
+	   SELECT pb.pub_id, pb.title, pb.pub_date, a.author_name
+	   FROM publication AS pb, authored AS aed, author AS a
+	   WHERE pb.pub_id = aed.pub_id AND aed.author_id = a.author_id
+	   ORDER BY pb.pub_id
+	);
+LOG:  duration: 2.506 ms
+LOG:  statement: SELECT *
+	FROM (
+	      SELECT author_name, booktitle, EXTRACT(YEAR FROM pa.pub_date) AS year, COUNT(*) AS paper_count
+	      FROM proceedings_inproceedings AS i
+	      JOIN publication_author AS pa
+	      ON i.pub_id = pa.pub_id
+	      GROUP BY author_name, booktitle, year
+	   ) AS result_set
+	WHERE author_name = 'Liming Chen' AND year = 2009 AND paper_count > 1 AND booktitle = 'ACIVS';
+LOG:  duration: 2196.756 ms
+LOG:  statement: SELECT *
+	INTO yearly_count
+	FROM (
+	      SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
+	      FROM proceedings_inproceedings
+	      GROUP BY year
+	      ) AS result_set;
+LOG:  duration: 3257.262 ms
+LOG:  statement: SELECT *
+	FROM (
+	      (
+	       SELECT '1970-1979' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 1970 AND 1979
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '1980-1989' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 1980 AND 1989
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '1990-1999' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 1990 AND 1999
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '2000-2009' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 2000 AND 2009
+	       GROUP BY year_range
+	       )
+	      UNION
+	      (
+	       SELECT '2010-2019' AS year_range, SUM(paper_count) as decade_paper_count
+	       FROM yearly_count
+	       WHERE year BETWEEN 2010 AND 2019
+	       GROUP BY year_range
+	       )
+	) as result_set
+	ORDER BY year_range;
+LOG:  duration: 1.515 ms
+LOG:  statement: DROP TABLE yearly_count;
+LOG:  duration: 0.642 ms
+LOG:  statement: DROP VIEW IF EXISTS valid_conferences CASCADE;
+LOG:  duration: 0.511 ms
+LOG:  statement: CREATE VIEW valid_conferences AS (
+	    SELECT booktitle, extract(year from pub_date) as year, COUNT(*) AS pub_count
+	    FROM inproceedings
+	    WHERE booktitle in (
+	        SELECT DISTINCT booktitle 
+	        FROM inproceedings
+	        WHERE extract(month from pub_date) = 6
+	    )
+	    GROUP BY booktitle, year
+	);
+LOG:  duration: 0.976 ms
+LOG:  statement: SELECT DISTINCT booktitle, year, pub_count
+	FROM valid_conferences
+	WHERE pub_count > 100
+	ORDER BY pub_count;
+LOG:  duration: 3668.507 ms
+LOG:  received smart shutdown request
+LOG:  autovacuum launcher shutting down
+LOG:  shutting down
+LOG:  database system is shut down
