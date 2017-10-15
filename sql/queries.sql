@@ -1,5 +1,14 @@
--- QUERY 1
+DROP VIEW IF EXISTS publication_author CASCADE;
 
+CREATE VIEW publication_author AS 
+(
+   SELECT pb.pub_id, pb.title, a.author_name
+   FROM publication AS pb, authored AS aed, author AS a
+   WHERE pb.pub_id = aed.pub_id AND aed.author_ID = a.author_ID
+   ORDER BY pb.pub_id
+);
+
+-- QUERY 1
 SELECT type, COUNT(*)
 FROM (
       (
@@ -85,7 +94,7 @@ WHERE author_name = 'Liming Chen' AND extract(year from pub_date) = 2015;
 -- (3b)
 SELECT author_name, pa.pub_id, pa.title
 FROM publication_author pa, proceedings_inproceedings i
-WHERE pa.pub_id = i.pub_id AND author_name = 'Liming Chen' AND extract(year from pa.pub_date)b = 2015 AND i.booktitle = 'CBMI';
+WHERE pa.pub_id = i.pub_id AND author_name = 'Liming Chen' AND extract(year from pa.pub_date) = 2015 AND i.booktitle = 'ICB';
 
 -- (3c)
 SELECT *
@@ -154,7 +163,8 @@ WHERE pwa1.author_name IN (
 --
 
 -- QUERY 5
-SELECT * INTO yearly_count
+SELECT *
+INTO yearly_count
 FROM (
       SELECT extract(year from pub_date) as year, COUNT(*) as paper_count
       FROM proceedings_inproceedings
@@ -201,7 +211,7 @@ FROM (
        GROUP BY year_range
        WHERE year BETWEEN 2010 AND 2019
        )
-      ) as result_set
+) as result_set
 ORDER BY year_range;
 
 DROP TABLE yearly_count;
@@ -273,7 +283,7 @@ CREATE VIEW valid_conferences AS (
 SELECT DISTINCT booktitle, year, pub_count
 FROM valid_conferences
 WHERE pub_count > 100
---
+ORDER BY pub_count;
 
 -- QUERY 9
 
@@ -297,7 +307,7 @@ GROUP BY author_name
 HAVING
     MAX(year)=2017 AND
     MIN(year)=1988 AND
-    count(year)=30
+    count(year)=30;
 
 DROP TABLE h_family;
 DROP TABLE author_year_1988_2017;
@@ -342,35 +352,3 @@ WITH result AS (
 SELECT year, author_name, pub_count
 FROM result
 WHERE row = 1;
---
-
-
--- Query to delete duplicates in author and then update the authored table
--- Copy author table but without duplicates. Use the author_id with the smallest number.
-WITH result AS (
-    SELECT *, ROW_NUMBER() OVER (PARTITION BY author_name ORDER BY author_id) AS row
-    FROM author
-)
-SELECT author_id, author_name 
-INTO distinct_name
-FROM result
-WHERE row = 1;
-
--- Update the authored table
-DO $$
-DECLARE
-    rec RECORD;
-BEGIN
-  FOR rec IN (SELECT * FROM distinct_name) LOOP
-  UPDATE authored
-  SET author_id = rec.author_id
-  WHERE author_id IN (SELECT a.author_id FROM author a WHERE a.author_name = rec.author_name);
-  END LOOP;
-END $$;
-
--- Replace author table with the one without duplicates
-ALTER TABLE distinct_name ADD UNIQUE (author_name);
-
-DROP TABLE author;
-
-ALTER TABLE distinct_name RENAME TO author;

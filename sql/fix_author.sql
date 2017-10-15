@@ -18,7 +18,7 @@ FROM (
 ) AS aid_updater
 WHERE authored.author_id = aid_updater.old_id;
 
-LTER TABLE distinct_name ADD UNIQUE (author_name);
+ALTER TABLE distinct_name ADD UNIQUE (author_name);
 
 DROP TABLE author;
 
