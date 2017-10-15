@@ -174,42 +174,42 @@ FROM (
 SELECT *
 FROM (
       (
-       SELECT '1970-1979' AS year_range, COUNT(paper_count) as decade_paper_count
+       SELECT '1970-1979' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
-       GROUP BY year_range
        WHERE year BETWEEN 1970 AND 1979
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '1980-1989' AS year_range, COUNT(paper_count) as decade_paper_count
+       SELECT '1980-1989' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
-       GROUP BY year_range
        WHERE year BETWEEN 1980 AND 1989
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '1990-1999' AS year_range, COUNT(paper_count) as decade_paper_count
+       SELECT '1990-1999' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
-       GROUP BY year_range
        WHERE year BETWEEN 1990 AND 1999
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '2000-2009' AS year_range, COUNT(paper_count) as decade_paper_count
+       SELECT '2000-2009' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
-       GROUP BY year_range
        WHERE year BETWEEN 2000 AND 2009
+       GROUP BY year_range
        )
 
       UNION
       (
-       SELECT '2010-2019' AS year_range, COUNT(paper_count) as decade_paper_count
+       SELECT '2010-2019' AS year_range, SUM(paper_count) as decade_paper_count
        FROM yearly_count
-       GROUP BY year_range
        WHERE year BETWEEN 2010 AND 2019
+       GROUP BY year_range
        )
 ) as result_set
 ORDER BY year_range;
